@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<fragment xmlns="http://schemas.haulmont.com/cuba/screen/fragment.xsd">
+    <data>
+        <collection id="notesDc" class="com.company.untitled16.entity.Notes" view="_local">
+            <loader id="notesDl">
+                <query><![CDATA[select e from untitled16_Notes e]]></query>
+            </loader>
+        </collection>
+    </data>
+    <layout>
+        <table id="notesTable"
+               width="100%"
+               height="100%"
+               dataContainer="notesDc">
+
+            <actions>
+                <action id="create" type="create"/>
+                <action id="edit" type="edit" />
+                <action id="remove" type="remove"/>
+            </actions>
+
+            <columns>
+                <column id="text"/>
+            </columns>
+
+            <rowsCount/>
+
+            <buttonsPanel>
+                <button id="createBtn" action="notesTable.create" caption="Создать"/>
+                <button id="editBtn" action="notesTable.edit" caption="Изменить"/>
+                <button id="removeBtn" action="notesTable.remove" caption="Удалить"/>
+            </buttonsPanel>
+        </table>
+
+
+    </layout>
+</fragment>

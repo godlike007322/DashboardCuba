@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        caption="msg://notesWidgetTest.caption"
+        messagesPack="com.company.untitled16.web.screens.notes">
+    <layout>
+        <fragment id="notesWidget"
+                  screen="untitled16_NotesWidget"
+                  width="100%"
+                  height="100%"/>
+    </layout>
+</window>

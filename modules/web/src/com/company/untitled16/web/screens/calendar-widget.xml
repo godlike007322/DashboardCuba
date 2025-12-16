@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<fragment xmlns="http://schemas.haulmont.com/cuba/screen/fragment.xsd">
+    <layout stylename="panel">
+
+        <vbox width="300px" height="100%" spacing="false" margin="false">
+        <jsComponent id="clock"
+                     height="35px"
+                     align="TOP_CENTER"
+                     initFunctionName="com_company_project_web_ui_components_jscomponent_Clock">
+            <dependencies>
+                <!-- jQuery можно не дублировать, но так проще/надёжнее -->
+                <dependency path="webjar://jquery:jquery.min.js"/>
+                <dependency path="vaadin://clock/clock-connector.js"/>
+            </dependencies>
+        </jsComponent>
+        <jsComponent id="calendar" width="Auto"
+                     initFunctionName="com_company_project_web_ui_components_jscomponent_Calendar">
+            <dependencies>
+                <!-- jQuery из webjar (как в примере из доки) -->
+                <dependency path="webjar://jquery:jquery.min.js"/>
+
+                <!-- сам календарь и его css из VAADIN/resources/simplecalendar -->
+                    <dependency path="vaadin://simple-calendar/jquery.simple-calendar.js"/>
+                    <dependency path="vaadin://simple-calendar/simple-calendar.css"/>
+
+                <!-- наш коннектор -->
+                <dependency path="vaadin://simple-calendar/simple-calendar-connector-ru-2.js"/>
+            </dependencies>
+        </jsComponent>
+        </vbox>
+    </layout>
+</fragment>

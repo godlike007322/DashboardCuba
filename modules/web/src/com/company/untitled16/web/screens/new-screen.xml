@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        caption="msg://newScreen.caption"
+        messagesPack="com.company.untitled16.web.screens">
+    <layout>
+        <jsComponent id="timePicker" visible="false"
+                     initFunctionName="com_haulmont_sampler_web_ui_components_jscomponent_TimePicker">
+            <dependencies>
+                <dependency path="webjar://jquery:jquery.min.js"/>
+                <dependency path="vaadin://timepicker/wickedpicker.min.js"/>
+                <dependency path="vaadin://timepicker/wickedpicker.min.css"/>
+                <dependency path="vaadin://timepicker/time-picker-connector.js"/>
+            </dependencies>
+        </jsComponent>
+
+        <button id="showValueBtn" visible="false" caption="Show Value"/>
+
+
+<!--        <jsComponent id="simpleCalendar"-->
+<!--                     initFunctionName="com_haulmont_sampler_web_ui_components_jscomponent_SimpleCalendar"-->
+<!--                     width="600px"-->
+<!--                     height="400px">-->
+<!--            <dependencies>-->
+<!--                <dependency path="vaadin://simple-calendar/jquery.simple-calendar.js"/>-->
+<!--                <dependency path="vaadin://simple-calendar/simple-calendar.css" type="STYLESHEET"/>-->
+<!--                <dependency path="vaadin://simple-calendar/simple-calendar-connector.js"/>-->
+<!--                <dependency path="vaadin://simple-calendar/jquery-3.7.1.min.js"/>-->
+<!--            </dependencies>-->
+<!--        </jsComponent>-->
+
+        <jsComponent id="calendar"
+                     initFunctionName="com_company_project_web_ui_components_jscomponent_Calendar">
+            <dependencies>
+                <!-- jQuery из webjar (как в примере из доки) -->
+                <dependency path="webjar://jquery:jquery.min.js"/>
+
+                <!-- сам календарь и его css из VAADIN/resources/simplecalendar -->
+                <dependency path="vaadin://simple-calendar/jquery.simple-calendar.js"/>
+                <dependency path="vaadin://simple-calendar/simple-calendar.css"/>
+
+                <!-- наш коннектор -->
+                <dependency path="vaadin://simple-calendar/simple-calendar-connector-ru-2.js"/>
+            </dependencies>
+        </jsComponent>
+
+
+    </layout>
+</window>

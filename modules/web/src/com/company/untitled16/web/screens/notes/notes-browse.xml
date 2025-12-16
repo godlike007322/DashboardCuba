@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        xmlns:c="http://schemas.haulmont.com/cuba/screen/jpql_condition.xsd"
+        caption="msg://notesBrowse.caption"
+        focusComponent="notesesTable"
+        messagesPack="com.company.untitled16.web.screens.notes">
+    <data readOnly="true">
+        <collection id="notesesDc"
+                    class="com.company.untitled16.entity.Notes">
+            <view extends="_local"/>
+            <loader id="notesesDl">
+                <query>
+                    <![CDATA[select e from untitled16_Notes e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="notesesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="notesesTable"
+                dataLoader="notesesDl">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="notesesTable"
+                    width="100%"
+                    dataContainer="notesesDc">
+            <actions>
+                <action id="create" type="create"/>
+                <action id="edit" type="edit"/>
+                <action id="remove" type="remove"/>
+            </actions>
+            <columns>
+                <column id="text"/>
+            </columns>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn" action="notesesTable.create"/>
+                <button id="editBtn" action="notesesTable.edit"/>
+                <button id="removeBtn" action="notesesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+        <hbox id="lookupActions" spacing="true" visible="false">
+            <button action="lookupSelectAction"/>
+            <button action="lookupCancelAction"/>
+        </hbox>
+    </layout>
+</window>

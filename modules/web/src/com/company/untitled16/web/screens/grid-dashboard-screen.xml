@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        caption="msg://gridDashboardScreen.caption"
+        messagesPack="com.company.untitled16.web.screens">
+    <layout>
+        <jsComponent id="gridDashboard"
+                     width="100%"
+                     height="100%"
+                     initFunctionName="com_company_project_web_ui_components_jscomponent_GridDashboard">
+            <dependencies>
+                <dependency path="webjar://jquery:jquery.min.js"/>
+                <dependency path="vaadin://grid/gridstack-all.js"/>
+                <dependency path="vaadin://grid/gridstack.min.css"/>
+                <dependency path="vaadin://simple-calendar/jquery.simple-calendar.js"/>
+                <dependency path="vaadin://simple-calendar/simple-calendar.css"/>
+                <dependency path="vaadin://grid/grid-dashboard-connector-clock-and-calendar-4.js"/>
+            </dependencies>
+        </jsComponent>
+
+
+    </layout>
+</window>

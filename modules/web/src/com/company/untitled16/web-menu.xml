@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<menu-config xmlns="http://schemas.haulmont.com/cuba/menu.xsd">
+    <menu id="application-untitled16" insertBefore="administration" caption="mainMsg://menu_config.application-untitled16">
+        <item screen="untitled16_" caption="mainMsg://menu_config.untitled16_"/>
+        <item screen="untitled16_GridDashboardScreen" caption="mainMsg://menu_config.untitled16_GridDashboardScreen"/>
+        <item screen="untitled16_Notes.browse" caption="mainMsg://menu_config.untitled16_Notes.browse"/>
+        <item screen="untitled16_NotesWidgetTest" caption="mainMsg://menu_config.untitled16_NotesWidgetTest"/>
+        <item screen="untitled16_DashboardScreenNotes" caption="mainMsg://menu_config.untitled16_DashboardScreenNotes"/>
+        <item screen="untitled16_News.browse" caption="mainMsg://menu_config.untitled16_News.browse"/>
+        <item screen="untitled16_NotesWithDate.browse" caption="mainMsg://menu_config.untitled16_NotesWithDate.browse"/>
+    </menu>
+</menu-config>

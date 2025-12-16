@@ -1,0 +1,395 @@
+/* Define your theme modifications inside next mixin */
+@mixin com_company_untitled16-hover-ext {
+.panel {
+    width: calc(100% - 20px) !important;
+    height: calc(100% - 20px) !important;
+    margin: 10px;
+    border-radius: 4px;
+    background-color: white;
+    transition: box-shadow 100ms;
+  }
+
+  .panel:hover {
+    box-shadow: 0 0 15px #E2E2E2;
+  }
+
+  .colorBoxPanel {
+    height: 210px;
+  }
+
+  .mainbody {
+    background-color: #F5F5F5;
+    padding: 5px;
+    overflow: auto;
+  }
+
+  .v-slot-panel .v-verticallayout .v-slot {
+    text-align: center;
+  }
+
+  .v-slot-paneltext {
+    text-align: left !important;
+  }
+
+  .v-slot-responsive, .responsive {
+    overflow: visible;
+  }
+
+  text.amcharts-label {
+    text-transform: uppercase;
+    font-family: "Open Sans",sans-serif;
+  }
+
+  text.amcharts-label-green-thin,
+  text.amcharts-label-yellow-thin,
+  text.amcharts-label-blue-thin,
+  text.amcharts-label-red-thin {
+    font-weight: 100;
+  }
+
+  .panel-table .v-captiontext {
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 10px;
+  }
+
+  .responsive-all {
+    overflow: visible;
+
+    &[width-range~="0-1000px"] {
+
+      .panel-container {
+        width: calc(100% - 20px) !important;
+        height: 300px !important;
+      }
+
+      .panel-top-container {
+        width: calc(50% - 20px) !important;
+        height: 200px !important;
+      }
+
+      .panel-full-container {
+        width: calc(100% - 20px) !important;
+        height: 300px !important;
+      }
+
+      .panel-semifull-container {
+        width: 100% !important;
+        height: 50% !important;
+      }
+
+      .responsive-panels {
+        width: 100%;
+        height: auto;
+      }
+
+      .main-container .open-menu-button {
+        display: block;
+      }
+
+      .color-table .v-table-body {
+        height: auto !important;
+      }
+
+      .panel-table {
+        height: auto !important;
+      }
+    }
+
+    &[width-range~="1001-1200px"] {
+
+      .panel-container {
+        width: calc(50% - 20px) !important;
+        height: calc(100% - 20px) !important;
+      }
+
+      .panel-container .v-slot-panel {
+        height: 100%;
+      }
+
+      .panel-top-container {
+        width: calc(50% - 20px) !important;
+        height: 200px !important;
+      }
+
+      .panel-full-container {
+        width: calc(100% - 20px) !important;
+        height: 100% !important;
+      }
+
+      .panel-semifull-container {
+        width: 100% !important;
+        height: 50% !important;
+      }
+
+      .responsive-panels {
+        width: 100%;
+        height: 100%;
+      }
+
+      .v-slot-logo {
+        width: 67px;
+      }
+
+      .cuba-full-link {
+        display: none;
+      }
+
+      .cubalink {
+        width: 89px;
+        display: block !important;
+      }
+
+      .userbar {
+        width: 98px !important;
+        padding: 9px 0 10px 20px;
+      }
+    }
+
+    &[width-range~="1201px-"] {
+
+      .panel-container {
+        width: calc(50% - 20px) !important;
+        height: calc(50% - 20px) !important;
+      }
+
+      .panel-top-container {
+        width: calc(25% - 20px) !important;
+        height: 200px !important;
+      }
+
+      .panel-full-container {
+        width: calc(100% - 20px) !important;
+        height: calc(50% - 20px) !important;
+      }
+
+      .panel-semifull-container {
+        width: 33.3% !important;
+        height: 50% !important;
+      }
+
+      .responsive-panels {
+        width: 50%;
+        height: 100%;
+      }
+
+      .cubalink {
+        width: 200px;
+      }
+
+      .cubalink .v-icon {
+        width: 30px;
+      }
+
+      .responsive-all .v-expand {
+        padding-left: 200px;
+      }
+
+      .responsive-all .v-slot-leftmenu {
+        margin-left: -200px;
+      }
+    }
+  }
+
+  .paneltext {
+    padding: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #000000;
+    text-transform: uppercase;
+  }
+
+  .green-panel {
+    background-color: #98DF58;
+    color: white;
+  }
+
+  .red-panel {
+    background-color: #EC6464;
+    color: white;
+  }
+
+  .blue-panel {
+    background-color: #3090F0;
+    color: white;
+  }
+
+  .yellow-panel {
+    background-color: #F9DD51;
+    color: white;
+  }
+
+  .panel .bigtext {
+    font-size: 35px;
+    font-weight: 100;
+    margin-top: -12px;
+    margin-bottom: -6px;
+    margin-left: 11px;
+  }
+
+  .panel .caption {
+    font-size: 20px;
+    text-align: center;
+    text-shadow: 1px 1px 2px #969696;
+  }
+
+  .cubalink {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    display: none;
+    text-align: center;
+    color: #D1D1D1;
+  }
+
+  .cubalink span {
+    display: none;
+  }
+
+  .cuba-full-link {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: #D1D1D1;
+  }
+
+  .cuba-full-link .v-icon {
+    width: 150px;
+  }
+
+  .color-table {
+    width: 100%;
+  }
+
+  .color-table .v-table-cell-content {
+    border-left: none !important;
+  }
+
+  .color-table .v-table-row-odd {
+    background: none !important;
+  }
+
+  .color-table .v-selected {
+    background: none !important;
+    color: #464646 !important;
+  }
+
+  .color-table .v-table-focus {
+    outline: none !important;
+  }
+
+  .color-table .cuba-table-clickable-cell {
+    color: black;
+    border-bottom: none;
+  }
+
+  .color-table .v-table-body {
+    border: none !important;
+  }
+
+  .color-table .v-table-cell-wrapper {
+    padding: 0 10px !important;
+  }
+
+  .color-table .v-table-table {
+    background: none !important;
+    box-shadow: none !important;
+    font-size: 14px;
+  }
+
+  .color-table .v-table-table .direction {
+    font-size: 14px;
+  }
+
+  .color-table td {
+    padding: 7px 0;
+  }
+
+  .header-layout {
+    padding-left: $v-layout-margin-left;
+    padding-right: $v-layout-margin-right;
+  }
+
+  .header {
+    font-size: $v-unit-size;
+    padding-left: $v-layout-margin-left;
+  }
+
+  .pie-chart a {
+    width: 100%;
+    height: 100% !important;
+    text-align: center;
+  }
+
+  .dashboard-map {
+
+  }
+
+  .c-login-icon {
+    height: 40px;
+    width: 40px;
+  }
+
+  .c-sidemenu-item .v-icon {
+    width: 25px;
+    height: 25px;
+  }
+
+  .c-sidemenu-item.menubutton-selected {
+    color: #ffffff;
+    background-color: #006BAC !important;
+  }
+
+  .c-sidemenu-item:hover {
+    background-color: #006bac !important;
+  }
+
+  .c-logout-button {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+
+    .v-icon {
+      font-size: $v-unit-size;
+    }
+  }
+
+  .c-logout-button:hover:after,
+  .c-logout-button:active:after {
+    background: none;
+  }
+
+  .c-sidemenu-responsive {
+    &[width-range~="801-1100px"] {
+      .cuba-full-link {
+        display: none;
+      }
+    }
+  }
+
+  .c-sidemenu-wrap .c-app-icon {
+    height: 50px;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+  .grid-stack-item-content {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #ffffff;
+    box-shadow: 0 0 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+
+  /* специально для часов */
+  .clock-widget-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Open Sans", sans-serif;
+    font-weight: bold;
+  }
+
+}
