@@ -1,0 +1,641 @@
+// initFunctionName в XML: com_company_untitled16_web_ui_components_jscomponent_GridDashboard
+window.com_company_untitled16_web_ui_components_jscomponent_GridDashboard = function () {
+  var connector = this;
+  var element = connector.getElement();
+
+  // ===== deps =====
+  function $jq() { return window.jQuery || window.$; }
+  function depsReady() {
+    var $ = $jq();
+    return !!($ && window.GridStack && $.fn && $.fn.simpleCalendar);
+  }
+
+  // ===== state =====
+  var grid = null;
+  var $grid = null;
+
+  var LS_KEY = 'dash.layout.v3';
+
+  // picker (наш JS-диалог)
+  var picker = {
+    inited: false,
+    backdrop: null
+  };
+
+  // ===== utils =====
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function toIso(d) {
+    var y = d.getFullYear();
+    var m = ('0' + (d.getMonth() + 1)).slice(-2);
+    var day = ('0' + d.getDate()).slice(-2);
+    return y + '-' + m + '-' + day;
+  }
+
+  function isoToDate(iso) {
+    var p = String(iso || '').split('-');
+    if (p.length !== 3) return new Date();
+    return new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+  }
+
+  function widgetExists(id) {
+    return !!element.querySelector('#' + id);
+  }
+
+  function defaultRectById(id) {
+    switch (id) {
+      case 'widget-manager':  return { x: 0, y: 0, w: 3, h: 2 };
+      case 'widget-clock':    return { x: 3, y: 0, w: 3, h: 2 };
+      case 'widget-calendar': return { x: 6, y: 0, w: 6, h: 6 };
+      case 'widget-notes':    return { x: 0, y: 2, w: 6, h: 6 };
+      default: return { x: 0, y: 0, w: 3, h: 3 };
+    }
+  }
+
+  // ===== root HTML =====
+  function setRootHtmlOnce() {
+    element.style.display = 'block';
+    element.style.width = '100%';
+    element.style.height = '100%';
+    element.classList.add('dash-root');
+
+    if (!element.querySelector('.dash-grid')) {
+      element.innerHTML = '<div class="grid-stack dash-grid" style="width:100%;height:100%"></div>';
+    }
+  }
+
+  // ===== tile building =====
+  function makeTile(id, title, bodyHtml, canRemove) {
+    var removeBtn = canRemove
+      ? '<button type="button" class="dash-remove" title="Убрать">✕</button>'
+      : '';
+
+    return '' +
+      '<div class="grid-stack-item" id="' + id + '">' +
+      '  <div class="grid-stack-item-content widget-flex">' +
+      '    <div class="widget-drag-handle dash-handle">' +
+      '      <span class="dash-title">' + title + '</span>' +
+      removeBtn +
+      '    </div>' +
+      '    <div class="dash-body">' + bodyHtml + '</div>' +
+      '  </div>' +
+      '</div>';
+  }
+
+  function addWidget(id, rect, fromRestore) {
+    if (widgetExists(id)) return;
+
+    rect = rect || defaultRectById(id);
+
+    var title = id;
+    var bodyHtml = '';
+    var canRemove = (id !== 'widget-manager');
+
+    if (id === 'widget-manager') {
+      title = 'Панель';
+      bodyHtml =
+        '<div class="dash-panel">' +
+        '  <button type="button" class="dash-btn dash-add">➕ Добавить виджет</button>' +
+        '  <button type="button" class="dash-btn dash-reset">Сбросить раскладку</button>' +
+        '</div>';
+    } else if (id === 'widget-clock') {
+      title = 'Часы';
+      bodyHtml = '<div class="clock-widget-container dash-clock"></div>';
+    } else if (id === 'widget-calendar') {
+      title = 'Календарь';
+      bodyHtml = '<div class="calendar-widget-container"></div>';
+    } else if (id === 'widget-notes') {
+      title = 'Заметки';
+      bodyHtml =
+        '<div class="dash-notes-head">' +
+        '  <div class="dash-notes-date"></div>' +
+        '  <button type="button" class="dash-btn dash-create-note">+ Создать</button>' +
+        '</div>' +
+        '<div class="dash-notes-list"></div>';
+    } else {
+      bodyHtml = '<div>Unknown widget</div>';
+    }
+
+    $grid[0].insertAdjacentHTML('beforeend', makeTile(id, title, bodyHtml, canRemove));
+    var el = element.querySelector('#' + id);
+
+    el.setAttribute('gs-x', '' + rect.x);
+    el.setAttribute('gs-y', '' + rect.y);
+    el.setAttribute('gs-w', '' + rect.w);
+    el.setAttribute('gs-h', '' + rect.h);
+
+    grid.makeWidget(el);
+    grid.update(el, rect.x, rect.y, rect.w, rect.h);
+
+    bindTileLogic(id);
+
+    if (!fromRestore) saveLayout();
+  }
+
+  function removeWidget(id) {
+    var el = element.querySelector('#' + id);
+    if (!el || !grid) return;
+
+    if (id === 'widget-clock') stopClock();
+    if (id === 'widget-calendar') resetCalendarState();
+
+    grid.removeWidget(el);
+    saveLayout();
+  }
+
+  // ===== layout persistence =====
+  function saveLayout() {
+    if (!grid || !grid.engine || !grid.engine.nodes) return;
+
+    var arr = grid.engine.nodes
+      .filter(function (n) { return n && n.el && n.el.id && n.el.id.indexOf('widget-') === 0; })
+      .map(function (n) { return { id: n.el.id, x: n.x, y: n.y, w: n.w, h: n.h }; });
+
+    localStorage.setItem(LS_KEY, JSON.stringify(arr));
+  }
+
+  function restoreLayout() {
+    var raw = localStorage.getItem(LS_KEY);
+    if (!raw) return false;
+
+    var arr;
+    try { arr = JSON.parse(raw); } catch (e) { arr = null; }
+    if (!arr || !arr.length) return false;
+
+    // manager first
+    var mgr = arr.filter(function (x) { return x && x.id === 'widget-manager'; })[0];
+    addWidget('widget-manager',
+      mgr ? { x: mgr.x || 0, y: mgr.y || 0, w: mgr.w || 3, h: mgr.h || 2 } : defaultRectById('widget-manager'),
+      true
+    );
+
+    // others
+    arr.forEach(function (it) {
+      if (!it || !it.id || it.id === 'widget-manager') return;
+      addWidget(it.id, { x: it.x || 0, y: it.y || 0, w: it.w || 3, h: it.h || 3 }, true);
+    });
+
+    return true;
+  }
+
+  // ===== picker (красивое окно выбора виджетов) =====
+  function ensurePicker() {
+    if (picker.inited) return;
+    picker.inited = true;
+injectPickerStylesOnce();
+    var html =
+      '<div class="dash-picker-backdrop" style="display:none">' +
+      '  <div class="dash-picker" role="dialog" aria-modal="true">' +
+      '    <div class="dash-picker-head">' +
+      '      <div class="dash-picker-title">Добавить виджет</div>' +
+      '      <button type="button" class="dash-picker-close" title="Закрыть">✕</button>' +
+      '    </div>' +
+      '    <div class="dash-picker-grid">' +
+      '      <div class="dash-widget-card" data-widget="widget-clock">' +
+      '        <div class="dash-widget-icon">🕒</div>' +
+      '        <div class="dash-widget-info"><div class="dash-widget-title">Часы</div><div class="dash-widget-desc">Текущее время</div></div>' +
+      '        <div class="dash-widget-action">Добавить</div>' +
+      '      </div>' +
+      '      <div class="dash-widget-card" data-widget="widget-calendar">' +
+      '        <div class="dash-widget-icon">📅</div>' +
+      '        <div class="dash-widget-info"><div class="dash-widget-title">Календарь</div><div class="dash-widget-desc">Заметки по датам</div></div>' +
+      '        <div class="dash-widget-action">Добавить</div>' +
+      '      </div>' +
+      '      <div class="dash-widget-card" data-widget="widget-notes">' +
+      '        <div class="dash-widget-icon">📝</div>' +
+      '        <div class="dash-widget-info"><div class="dash-widget-title">Заметки</div><div class="dash-widget-desc">Список заметок за день</div></div>' +
+      '        <div class="dash-widget-action">Добавить</div>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    document.body.insertAdjacentHTML('beforeend', html);
+    picker.backdrop = document.body.querySelector('.dash-picker-backdrop');
+
+    // fallback-стили (чтобы было видно даже если тема не собралась)
+    picker.backdrop.style.position = 'fixed';
+    picker.backdrop.style.left = '0';
+    picker.backdrop.style.top = '0';
+    picker.backdrop.style.right = '0';
+    picker.backdrop.style.bottom = '0';
+    picker.backdrop.style.alignItems = 'center';
+    picker.backdrop.style.justifyContent = 'center';
+    picker.backdrop.style.background = 'rgba(0,0,0,0.40)';
+    picker.backdrop.style.zIndex = '99999';
+
+    // close by backdrop
+    picker.backdrop.addEventListener('click', function (e) {
+      if (e.target === picker.backdrop) closePicker();
+    });
+
+    // close button
+    picker.backdrop.querySelector('.dash-picker-close').addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      closePicker();
+    });
+
+    // click card
+    picker.backdrop.querySelector('.dash-picker-grid').addEventListener('click', function (e) {
+      var card = e.target.closest ? e.target.closest('.dash-widget-card') : null;
+      if (!card) return;
+      if (card.classList.contains('is-disabled')) return;
+
+      var wid = card.getAttribute('data-widget');
+      if (!wid) return;
+
+      addWidget(wid, defaultRectById(wid), false);
+      refreshPickerAvailability();
+      closePicker();
+    });
+
+    // ESC
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closePicker();
+    });
+
+    refreshPickerAvailability();
+  }
+
+  function refreshPickerAvailability() {
+    if (!picker.backdrop) return;
+    var cards = picker.backdrop.querySelectorAll('.dash-widget-card[data-widget]');
+    for (var i = 0; i < cards.length; i++) {
+      var c = cards[i];
+      var id = c.getAttribute('data-widget');
+      var already = widgetExists(id);
+
+      if (already) c.classList.add('is-disabled');
+      else c.classList.remove('is-disabled');
+
+      var act = c.querySelector('.dash-widget-action');
+      if (act) act.textContent = already ? 'Уже добавлен' : 'Добавить';
+    }
+  }
+
+  function openPicker() {
+    ensurePicker();
+    refreshPickerAvailability();
+    picker.backdrop.style.display = 'flex';
+    document.body.classList.add('dash-picker-open');
+  }
+
+  function closePicker() {
+    if (!picker.backdrop) return;
+    picker.backdrop.style.display = 'none';
+    document.body.classList.remove('dash-picker-open');
+  }
+
+  // ===== tile logic =====
+  function bindTileLogic(id) {
+    var tile = element.querySelector('#' + id);
+    if (!tile) return;
+
+    var rm = tile.querySelector('.dash-remove');
+    if (rm) {
+      rm.addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        removeWidget(id);
+      });
+    }
+
+    if (id === 'widget-manager') {
+      var btnAdd = tile.querySelector('.dash-add');
+      var btnReset = tile.querySelector('.dash-reset');
+
+      btnAdd && btnAdd.addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        openPicker();
+      });
+
+      btnReset && btnReset.addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+
+        localStorage.removeItem(LS_KEY);
+
+        ['widget-clock', 'widget-calendar', 'widget-notes'].forEach(function (x) {
+          if (widgetExists(x)) removeWidget(x);
+        });
+
+        addWidget('widget-clock', defaultRectById('widget-clock'), false);
+        addWidget('widget-calendar', defaultRectById('widget-calendar'), false);
+        addWidget('widget-notes', defaultRectById('widget-notes'), false);
+
+        saveLayout();
+      });
+    }
+
+    if (id === 'widget-clock') startClock();
+    if (id === 'widget-calendar') initCalendar();
+    if (id === 'widget-notes') initNotesWidget();
+  }
+
+  // ===== clock =====
+  var clockTimer = null;
+  function startClock() {
+    var el = element.querySelector('#widget-clock .dash-clock');
+    if (!el) return;
+
+    function tick() {
+      var now = new Date();
+      el.textContent = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+    }
+
+    tick();
+    stopClock();
+    clockTimer = setInterval(tick, 1000);
+  }
+
+  function stopClock() {
+    if (clockTimer) { clearInterval(clockTimer); clockTimer = null; }
+  }
+
+  // ===== calendar + notes =====
+  var cal = { sc: null, $c: null, selectedIso: null };
+
+  function resetCalendarState() {
+    cal.sc = null;
+    cal.$c = null;
+    cal.selectedIso = null;
+  }
+function injectPickerStylesOnce() {
+  if (document.getElementById('dash-picker-styles')) return;
+
+  var css = [
+    '.dash-picker-backdrop{display:none;align-items:center;justify-content:center;',
+    '  position:fixed;left:0;top:0;right:0;bottom:0;',
+    '  background:rgba(0,0,0,.40);z-index:99999;',
+    '}',
+
+    '.dash-picker{width:min(720px,92vw);background:#fff;border-radius:14px;overflow:hidden;',
+    '  box-shadow:0 12px 40px rgba(0,0,0,.25);',
+    '}',
+
+    '.dash-picker-head{display:flex;align-items:center;justify-content:space-between;gap:10px;',
+    '  padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.08);background:#fafafa;',
+    '}',
+    '.dash-picker-title{font-weight:800;font-size:16px;}',
+    '.dash-picker-close{border:none;background:transparent;cursor:pointer;width:34px;height:34px;',
+    '  border-radius:10px;font-size:16px;',
+    '}',
+    '.dash-picker-close:hover{background:rgba(0,0,0,.06);}',
+
+    '.dash-picker-grid{display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:10px;padding:12px;}',
+    '@media (min-width:760px){.dash-picker-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}',
+
+    '.dash-widget-card{display:flex;flex-direction:column;gap:10px;',
+    '  border:1px solid rgba(0,0,0,.10);border-radius:12px;padding:12px;cursor:pointer;background:#fff;',
+    '}',
+
+    '.dash-widget-card:hover{background:#fafafa;}',
+    '.dash-widget-icon{font-size:28px;}',
+    '.dash-widget-title{font-weight:800;}',
+    '.dash-widget-desc{color:#6f6f6f;font-size:13px;margin-top:2px;}',
+    '.dash-widget-action{margin-top:auto;font-weight:800;color:#333;',
+    '  padding:8px 10px;border-radius:10px;border:1px solid rgba(0,0,0,.12);text-align:center;',
+    '}',
+
+    '.dash-widget-card:hover .dash-widget-action{background:#f6f6f6;}',
+
+    '.dash-widget-card.is-disabled{opacity:.45;cursor:not-allowed;}',
+    '.dash-widget-card.is-disabled:hover{background:#fff;}',
+    '.dash-widget-card.is-disabled .dash-widget-action{background:#fff;}',
+
+    'body.dash-picker-open{overflow:hidden;}'
+  ].join('\n');
+
+  var st = document.createElement('style');
+  st.id = 'dash-picker-styles';
+  st.type = 'text/css';
+  st.appendChild(document.createTextNode(css));
+  document.head.appendChild(st);
+}
+
+  function renderCalendarDetails(iso, events) {
+    var $ = $jq();
+    if (!cal.$c || !$) return;
+
+    var $wrapper = cal.$c.find('.event-wrapper');
+    if (!$wrapper.length) return;
+
+    $wrapper.empty();
+
+    var $btn = $('<button type="button" class="sc-create-note">+ Создать заметку</button>');
+    $btn.on('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      if (connector.createNoteForDate) connector.createNoteForDate(iso);
+    });
+    $wrapper.append($('<div class="sc-note-actions"></div>').append($btn));
+
+    if (events && events.length) {
+      events.forEach(function (ev) {
+        var $row = $('<div class="event sc-note-row"></div>');
+        var $summary = $('<div class="event-summary sc-note-summary"></div>').text(ev.summary || '');
+        var $del = $('<button type="button" class="sc-note-del">Удалить</button>');
+
+        $del.on('click', function (e) {
+          e.preventDefault(); e.stopPropagation();
+          if (ev.noteId && connector.confirmDeleteNote) connector.confirmDeleteNote(String(ev.noteId), String(iso));
+        });
+
+        $row.on('click', function () {
+          if (ev.noteId && connector.openNote) connector.openNote(String(ev.noteId));
+        });
+
+        $row.append($summary).append($del);
+        $wrapper.append($row);
+      });
+    } else {
+      $wrapper.append('<div class="sc-empty">Нет заметок</div>');
+    }
+  }
+
+  function initCalendar() {
+    var $ = $jq();
+    var holder = element.querySelector('#widget-calendar .calendar-widget-container');
+    if (!holder || !$) return;
+
+    if ($(holder).data('scInit')) return;
+    $(holder).data('scInit', true);
+
+    $(holder).simpleCalendar({
+      months: ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'],
+      days: ['вс','пн','вт','ср','чт','пт','сб'],
+      displayYear: true,
+      fixedStartDay: true,
+
+      displayEvent: true,
+      disableEventDetails: false,
+      disableEmptyDetails: false,
+      events: [],
+
+      onInit: function () {
+        cal.$c = $(holder);
+        cal.sc = cal.$c.data('plugin_simpleCalendar') || cal.$c.data('simpleCalendar');
+
+        var now = new Date();
+        if (connector.requestNotesForMonth) connector.requestNotesForMonth(now.getFullYear(), now.getMonth() + 1);
+      },
+
+      onMonthChange: function (month, year) {
+        var m = parseInt(month, 10);
+        if (m >= 0 && m <= 11) m = m + 1;
+        if (connector.requestNotesForMonth) connector.requestNotesForMonth(year, m);
+      },
+
+      onDateSelect: function (date, events) {
+        var d = (date instanceof Date) ? date : new Date(date);
+        var iso = toIso(d);
+        cal.selectedIso = iso;
+
+        renderCalendarDetails(iso, events || []);
+
+        if (widgetExists('widget-notes')) requestDayNotes(iso);
+      }
+    });
+  }
+
+  function initNotesWidget() {
+    var tile = element.querySelector('#widget-notes');
+    if (!tile) return;
+
+    var btn = tile.querySelector('.dash-create-note');
+    btn && btn.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      var iso = cal.selectedIso || toIso(new Date());
+      if (connector.createNoteForDate) connector.createNoteForDate(iso);
+    });
+
+    requestDayNotes(cal.selectedIso || toIso(new Date()));
+  }
+
+  function requestDayNotes(iso) {
+    var tile = element.querySelector('#widget-notes');
+    if (!tile) return;
+
+    tile.querySelector('.dash-notes-date').textContent = 'Дата: ' + iso;
+    tile.querySelector('.dash-notes-list').innerHTML = '<div class="dash-muted">Загрузка...</div>';
+
+    if (connector.requestNotesForDay) connector.requestNotesForDay(iso);
+  }
+
+  // ===== RPC from Java =====
+  connector.applyCalendarEvents = function (eventsJson) {
+    if (!cal.$c) return;
+
+    var arr = [];
+    try { arr = JSON.parse(eventsJson || '[]'); } catch (e) { arr = []; }
+
+    var sc = cal.sc || (cal.$c.data('plugin_simpleCalendar') || cal.$c.data('simpleCalendar'));
+    if (!sc) return;
+
+    if (typeof sc.setEvents === 'function') sc.setEvents(arr);
+    else if (sc.settings) sc.settings.events = arr;
+
+    if (cal.selectedIso && typeof sc.getDateEvents === 'function') {
+      renderCalendarDetails(cal.selectedIso, sc.getDateEvents(isoToDate(cal.selectedIso)));
+    }
+  };
+
+  connector.applyDayNotes = function (iso, json) {
+    var tile = element.querySelector('#widget-notes');
+    if (!tile) return;
+
+    var list = tile.querySelector('.dash-notes-list');
+    var arr = [];
+    try { arr = JSON.parse(json || '[]'); } catch (e) { arr = []; }
+
+    if (!arr.length) {
+      list.innerHTML = '<div class="dash-muted">Нет заметок</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    arr.forEach(function (it) {
+      var row = document.createElement('div');
+      row.className = 'dash-note-row';
+      row.innerHTML =
+        '<div class="dash-note-text"></div>' +
+        '<button type="button" class="dash-note-del">Удалить</button>';
+
+      row.querySelector('.dash-note-text').textContent = it.summary || '';
+
+      row.addEventListener('click', function () {
+        if (it.noteId && connector.openNote) connector.openNote(String(it.noteId));
+      });
+
+      row.querySelector('.dash-note-del').addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        if (it.noteId && connector.confirmDeleteNote) connector.confirmDeleteNote(String(it.noteId), String(iso));
+      });
+
+      list.appendChild(row);
+    });
+  };
+
+  connector.refreshAfterNoteChange = function (iso) {
+    var d = isoToDate(iso);
+    if (connector.requestNotesForMonth) connector.requestNotesForMonth(d.getFullYear(), d.getMonth() + 1);
+    if (widgetExists('widget-notes')) requestDayNotes(iso);
+  };
+
+  connector.noteDeleted = function (noteId, iso) {
+    connector.refreshAfterNoteChange(String(iso || ''));
+  };
+
+  // ===== init =====
+  connector.initDashboard = function () {
+    var tries = 0;
+
+    (function tick() {
+      if (!depsReady()) {
+        if (tries++ < 200) return setTimeout(tick, 50);
+        return;
+      }
+
+      setRootHtmlOnce();
+
+      var $ = $jq();
+      $grid = $('.dash-grid', element);
+
+      if (!grid) {
+        grid = GridStack.init({
+          column: 12,
+          cellHeight: 80,
+          margin: 5,
+          float: true,
+          maxRow: 12,
+          draggable: { handle: '.widget-drag-handle' }
+        }, $grid[0]);
+
+        $grid.on('dragstop.gsSave resizestop.gsSave', function () {
+          saveLayout();
+        });
+      }
+
+      var ok = restoreLayout();
+      if (!ok) {
+        addWidget('widget-manager', defaultRectById('widget-manager'), true);
+        addWidget('widget-clock', defaultRectById('widget-clock'), true);
+        addWidget('widget-calendar', defaultRectById('widget-calendar'), true);
+        addWidget('widget-notes', defaultRectById('widget-notes'), true);
+        saveLayout();
+      }
+    })();
+  };
+
+  this.onUnregister = function () {
+    stopClock();
+    resetCalendarState();
+    closePicker();
+
+    if (picker.backdrop) {
+      try { picker.backdrop.remove(); } catch (e) {}
+      picker.backdrop = null;
+      picker.inited = false;
+    }
+
+    grid = null;
+    $grid = null;
+  };
+};

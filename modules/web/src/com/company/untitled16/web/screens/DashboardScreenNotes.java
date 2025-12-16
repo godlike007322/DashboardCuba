@@ -1,161 +1,89 @@
 package com.company.untitled16.web.screens;
 
 import com.company.untitled16.entity.Notes;
-import com.company.untitled16.web.screens.notes.NotesWithDateBrowse;
+import com.google.gson.Gson;
 import com.haulmont.bali.util.ParamsMap;
 import com.haulmont.cuba.core.global.DataManager;
-import com.haulmont.cuba.gui.*;
-import com.haulmont.cuba.gui.components.CssLayout;
+import com.haulmont.cuba.gui.Dialogs;
+import com.haulmont.cuba.gui.Notifications;
+import com.haulmont.cuba.gui.ScreenBuilders;
+import com.haulmont.cuba.gui.UiComponents;
+import com.haulmont.cuba.gui.app.core.inputdialog.DialogActions;
+import com.haulmont.cuba.gui.app.core.inputdialog.DialogOutcome;
+import com.haulmont.cuba.gui.app.core.inputdialog.InputParameter;
 import com.haulmont.cuba.gui.components.DialogAction;
+import com.haulmont.cuba.gui.components.LookupField;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.web.gui.components.JavaScriptComponent;
-import com.haulmont.cuba.gui.screen.EditorScreen;
-import com.haulmont.cuba.gui.screen.StandardOutcome;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @UiController("untitled16_DashboardScreenNotes")
 @UiDescriptor("dashboard-screen-notes.xml")
 public class DashboardScreenNotes extends Screen {
 
-    @Inject
-    private CssLayout gridRoot;
+    @Inject private JavaScriptComponent gridJs;
+    @Inject private DataManager dataManager;
+    @Inject private ScreenBuilders screenBuilders;
+    @Inject private Dialogs dialogs;
+    @Inject private Notifications notifications;
+    @Inject private UiComponents uiComponents;
 
-    @Inject
-    private UiComponents uiComponents;
+    private final Gson gson = new Gson();
 
-    @Inject
-    private Fragments fragments;
+    // ===== список виджетов (ID должен совпадать с тем, что JS ждёт)
+    private enum WidgetKind {
+        CLOCK("widget-clock", "Часы"),
+        NOTES("widget-notes", "Заметки"),
+        CALENDAR("widget-calendar", "Календарь"),
+        NEWS("widget-news", "Новости");
 
-    @Inject
-    private JavaScriptComponent gridJs;
+        private final String id;
+        private final String caption;
 
-@Inject
-private Dialogs dialogs;
+        WidgetKind(String id, String caption) {
+            this.id = id;
+            this.caption = caption;
+        }
 
-    @Subscribe
-    public void onBeforeShow(BeforeShowEvent event) {
-        // 1. CUBA CssLayout, просто задаём styleName, без unwrap
-        gridRoot.setStyleName("grid-stack");
+        public String getId() {
+            return id;
+        }
 
-
-        // === Плитка с заметками ===
-        CssLayout notesItem = uiComponents.create(CssLayout.NAME);
-        notesItem.setStyleName("grid-stack-item");
-        notesItem.setId("widget-notes");
-
-        CssLayout notesContent = uiComponents.create(CssLayout.NAME);
-        notesContent.setStyleName("grid-stack-item-content");
-        notesContent.setSizeFull();
-        notesItem.add(notesContent);
-
-// 1) СЕРАЯ ПОЛОСА-РУЧКА СВЕРХУ
-        CssLayout notesHandle = uiComponents.create(CssLayout.NAME);
-        notesHandle.setStyleName("notes-drag-handle widget-drag-handle");
-        notesHandle.setWidth("100%");
-        notesHandle.setHeight("24px"); // можешь подстроить
-
-// подпись "Заметки" внутри
-        com.haulmont.cuba.gui.components.Label<String> notesCaption =
-                uiComponents.create(com.haulmont.cuba.gui.components.Label.NAME);
-        notesCaption.setValue("Заметки");
-        notesHandle.add(notesCaption);
-
-        notesContent.add(notesHandle);
-
-// 2) Сам виджет заметок (фрагмент с таблицей)
-        NotesWidget notesWidget = fragments.create(this, NotesWidget.class);
-        notesContent.add(notesWidget.getFragment());
-
-// кладём плитку в грид
-        gridRoot.add(notesItem);
-
-
-        // === НОВАЯ плитка с часами ===
-        CssLayout clockItem = uiComponents.create(CssLayout.NAME);
-        clockItem.setStyleName("grid-stack-item");
-        clockItem.setId("widget-clock");
-
-
-        CssLayout clockContent = uiComponents.create(CssLayout.NAME);
-        // важный класс, по нему JS найдёт часы
-        clockContent.setStyleName("grid-stack-item-content clock-widget-container");
-        clockContent.setSizeFull();
-
-        clockItem.add(clockContent);
-
-        gridRoot.add(clockItem);
-
-        CssLayout newsItem = uiComponents.create(CssLayout.NAME);
-        newsItem.setStyleName("grid-stack-item");
-        newsItem.setId("widget-news");
-
-        CssLayout newsContent = uiComponents.create(CssLayout.NAME);
-        newsContent.setStyleName("grid-stack-item-content");
-        newsContent.setSizeFull();
-
-        newsItem.add(newsContent);
-
-        NewsWidget newsWidget = fragments.create(this, NewsWidget.class);
-        newsContent.add(newsWidget.getFragment());
-
-        gridRoot.add(newsItem);
-
-
-        // === ПЛИТКА С КАЛЕНДАРЁМ ===
-        CssLayout calItem = uiComponents.create(CssLayout.NAME);
-        calItem.setStyleName("grid-stack-item");
-        calItem.setId("widget-calendar");
-
-// общий контент (делаем колонкой: handle + body)
-        CssLayout calContent = uiComponents.create(CssLayout.NAME);
-        calContent.setStyleName("grid-stack-item-content widget-flex"); // widget-flex добавим в CSS
-        calContent.setSizeFull();
-        calItem.add(calContent);
-
-// ручка для перетаскивания (важно! у тебя draggable.handle = '.widget-drag-handle')
-        CssLayout calHandle = uiComponents.create(CssLayout.NAME);
-        calHandle.setStyleName("widget-drag-handle");
-        calHandle.setWidth("100%");
-        calHandle.setHeight("24px");
-
-        com.haulmont.cuba.gui.components.Label<String> calCaption =
-                uiComponents.create(com.haulmont.cuba.gui.components.Label.NAME);
-        calCaption.setValue("Календарь");
-        calHandle.add(calCaption);
-
-// тело календаря (сюда инициализируем simpleCalendar)
-        CssLayout calBody = uiComponents.create(CssLayout.NAME);
-        calBody.setStyleName("calendar-widget-container");
-        calBody.setSizeFull();
-
-        calContent.add(calHandle);
-        calContent.add(calBody);
-
-        gridRoot.add(calItem);
-
-
+        @Override
+        public String toString() {
+            return caption; // чтобы в LookupField показывалось красиво
+        }
     }
-
-    @Inject
-    private Notifications notifications;
-    @Inject
-    private ScreenBuilders screenBuilders;
-    @Inject
-    private DataManager dataManager;
 
     @Subscribe
     public void onInit(InitEvent event) {
 
-        // JS -> Java: дай заметки за месяц, чтобы календарь показал их в своём "окошке"
+        // ===== JS -> Java: открыть окно выбора виджета
+        // JS будет передавать JSON-массив текущих id, чтобы скрыть уже добавленные
+        gridJs.addFunction("showAddWidgetDialog", cb -> {
+            String existingJson = "[]";
+            try {
+                if (cb.getArguments() != null && cb.getArguments().length() > 0) {
+                    existingJson = cb.getArguments().getString(0);
+                }
+            } catch (Exception ignored) {}
+
+            Set<String> existingIds = new HashSet<>();
+            try {
+                String[] arr = gson.fromJson(existingJson, String[].class);
+                if (arr != null) existingIds.addAll(Arrays.asList(arr));
+            } catch (Exception ignored) {}
+
+            showAddWidgetDialog(existingIds);
+        });
+
+        // ===== JS -> Java: события на месяц (для календаря)
         gridJs.addFunction("requestNotesForMonth", cb -> {
             int year  = (int) cb.getArguments().getNumber(0);
-            int month = (int) cb.getArguments().getNumber(1); // ожидаем 1..12
+            int month = (int) cb.getArguments().getNumber(1); // 1..12
 
             LocalDate start = LocalDate.of(year, month, 1);
             LocalDate end   = start.plusMonths(1);
@@ -179,68 +107,70 @@ private Dialogs dialogs;
                 ));
             }
 
-            String json = new com.google.gson.Gson().toJson(events);
-            gridJs.callFunction("applyCalendarEvents", json);
+            gridJs.callFunction("applyCalendarEvents", gson.toJson(events));
         });
 
-        // JS -> Java: клик по событию в окне календаря -> открыть заметку
+        // ===== JS -> Java: список заметок на конкретный день (если у тебя есть виджет заметок по дню)
+        gridJs.addFunction("requestNotesForDay", cb -> {
+            LocalDate day = LocalDate.parse(cb.getArguments().getString(0));
+
+            List<Notes> notes = dataManager.load(Notes.class)
+                    .query("select e from untitled16_Notes e where e.noteDate = :d order by e.createTs desc")
+                    .parameter("d", day)
+                    .list();
+
+            List<Map<String, Object>> items = new ArrayList<>();
+            for (Notes n : notes) {
+                items.add(ParamsMap.of(
+                        "noteId", n.getId().toString(),
+                        "summary", shorten(n.getText(), 120)
+                ));
+            }
+
+            gridJs.callFunction("applyDayNotes", day.toString(), gson.toJson(items));
+        });
+
+        // ===== JS -> Java: открыть заметку
         gridJs.addFunction("openNote", cb -> {
             UUID id = UUID.fromString(cb.getArguments().getString(0));
             Notes note = dataManager.load(Notes.class).id(id).one();
 
-            screenBuilders.editor(Notes.class, this)
+            Screen editor = screenBuilders.editor(Notes.class, this)
                     .editEntity(note)
                     .withOpenMode(OpenMode.DIALOG)
-                    .show();
-        });
-
-
-        gridJs.addFunction("createNoteForDate", cb -> {
-            LocalDate date = LocalDate.parse(cb.getArguments().getString(0));
-
-            Notes n = dataManager.create(Notes.class);
-            n.setNoteDate(date);
-
-            MapScreenOptions opts = new MapScreenOptions(ParamsMap.of(
-                    "lockDate", true,
-                    "fixedDate", date
-            ));
-
-            Screen editor = screenBuilders.editor(Notes.class, this)
-                    .newEntity(n)
-                    .withOpenMode(OpenMode.DIALOG)
-                    .withOptions(opts)
                     .build();
 
-            editor.addAfterCloseListener(ev -> {
-                if (ev.closedWith(StandardOutcome.COMMIT)) {
-
-                    Notes saved = dataManager.load(Notes.class)
-                            .id(n.getId())
-                            .one();
-
-                    String summary = shorten(saved.getText(), 60);
-                    if (summary == null || summary.trim().isEmpty()) summary = "(без текста)";
-
-                    List<Map<String, Object>> one = new ArrayList<>();
-                    one.add(ParamsMap.of(
-                            "startDate", saved.getNoteDate().toString(),
-                            "endDate",   saved.getNoteDate().toString(),
-                            "summary",   summary,
-                            "noteId",    saved.getId().toString()
-                    ));
-
-                    String json = new com.google.gson.Gson().toJson(one);
-                    gridJs.callFunction("applyEventsAndRefresh", json, saved.getNoteDate().toString());
-
+            editor.addAfterCloseListener(e2 -> {
+                if (e2.closedWith(StandardOutcome.COMMIT) && note.getNoteDate() != null) {
+                    gridJs.callFunction("refreshAfterNoteChange", note.getNoteDate().toString());
                 }
             });
 
             editor.show();
         });
 
+        // ===== JS -> Java: создать заметку на дату
+        gridJs.addFunction("createNoteForDate", cb -> {
+            LocalDate date = LocalDate.parse(cb.getArguments().getString(0));
 
+            Notes n = dataManager.create(Notes.class);
+            n.setNoteDate(date);
 
+            Screen editor = screenBuilders.editor(Notes.class, this)
+                    .newEntity(n)
+                    .withOpenMode(OpenMode.DIALOG)
+                    .build();
+
+            editor.addAfterCloseListener(e2 -> {
+                if (e2.closedWith(StandardOutcome.COMMIT)) {
+                    gridJs.callFunction("refreshAfterNoteChange", date.toString());
+                }
+            });
+
+            editor.show();
+        });
+
+        // ===== JS -> Java: удалить заметку (с подтверждением)
         gridJs.addFunction("confirmDeleteNote", cb -> {
             String noteId = cb.getArguments().getString(0);
             String isoDate = cb.getArguments().getString(1);
@@ -254,29 +184,63 @@ private Dialogs dialogs;
                                 Notes n = dataManager.load(Notes.class).id(id).optional().orElse(null);
                                 if (n != null) dataManager.remove(n);
 
-                                gridJs.callFunction("removeCalendarEvent", noteId, isoDate);
+                                gridJs.callFunction("noteDeleted", noteId, isoDate);
                             }),
                             new DialogAction(DialogAction.Type.NO)
                     )
                     .show();
         });
+    }
 
+    private void showAddWidgetDialog(Set<String> existingIds) {
+        List<WidgetKind> available = new ArrayList<>();
+        for (WidgetKind w : WidgetKind.values()) {
+            if (!existingIds.contains(w.getId())) available.add(w);
+        }
 
+        if (available.isEmpty()) {
+            notifications.create(Notifications.NotificationType.TRAY)
+                    .withCaption("Все виджеты уже добавлены")
+                    .show();
+            return;
+        }
 
+        dialogs.createInputDialog(this)
+                .withCaption("Добавить виджет")
+                .withParameters(
+                        InputParameter.parameter("widget")
+                                .withField(() -> {
+                                    LookupField<WidgetKind> lf = uiComponents.create(LookupField.of(WidgetKind.class));
+                                    lf.setCaption("Виджет");
+                                    lf.setOptionsList(available);
+                                    lf.setRequired(true);
+                                    lf.setWidthFull();
+                                    lf.setValue(available.get(0));
+                                    return lf;
+                                })
+                )
+                .withActions(DialogActions.OK_CANCEL)
+                .withCloseListener(closeEvent -> {
+                    if (!closeEvent.closedWith(DialogOutcome.OK)) return;
+
+                    WidgetKind w = closeEvent.getValue("widget");
+                    if (w == null) return;
+
+                    // Java -> JS: добавить выбранный виджет
+                    gridJs.callFunction("addWidgetById", w.getId());
+                })
+                .show();
+    }
+
+    @Subscribe
+    public void onAfterShow(AfterShowEvent event) {
+        gridJs.callFunction("initDashboard");
     }
 
     private String shorten(String s, int max) {
         if (s == null) return "";
         s = s.trim();
+        if (s.isEmpty()) return "(без текста)";
         return s.length() <= max ? s : (s.substring(0, max - 1) + "…");
-    }
-
-
-
-
-
-    @Subscribe
-    protected void onAfterShow(AfterShowEvent event) {
-        gridJs.callFunction("initGrid");
     }
 }

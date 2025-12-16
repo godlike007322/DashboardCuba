@@ -1,244 +1,435 @@
-    /* Define your theme modifications inside next mixin */
-    @mixin com_company_untitled16-halo-ext {
-      .grid-stack-item-content {
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background-color: #ffffff;
-        box-shadow: 0 0 8px rgba(0,0,0,0.08);
-        overflow: hidden;
-      }
+/* Define your theme modifications inside next mixin */
+@mixin com_company_untitled16-halo-ext {
 
-      .clock-widget-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: "Open Sans", sans-serif;
-        font-weight: bold;
+  /* ===== общий вид плиток ===== */
+  .grid-stack-item-content {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #ffffff;
+    box-shadow: 0 0 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
 
-        padding: 0;           // чтобы не съедать место
-        margin: 0;
+  .grid-stack {
+    width: 100%;
+    height: 100%;
+  }
 
-        white-space: nowrap;  // НЕ переносить "12:34:56" на две строки
-        overflow: hidden;     // если что-то пойдёт за край – обрежет
-      }
+  /* Восстанавливаем подписи у Vaadin-кнопок (если где-то ещё используются) */
+  .grid-stack-item-content .v-button-caption {
+    display: inline-block !important;
+    font-size: 13px !important;
+    color: #333 !important;
+  }
 
-      /* Восстанавливаем подписи у кнопок внутри наших виджетов */
-      .grid-stack-item-content .v-button-caption {
-        display: inline-block !important;
-        font-size: 13px !important;
-        color: #333 !important;
-      }
+  .grid-stack.grid-stack-static .grid-stack-item,
+  .grid-stack.grid-stack-static .grid-stack-item .grid-stack-item-content {
+    pointer-events: auto;
+  }
 
-      .grid-stack.grid-stack-static .grid-stack-item,
-      .grid-stack.grid-stack-static .grid-stack-item .grid-stack-item-content {
-          pointer-events: auto;
-      }
+  /* ===== НОВЫЙ HTML-ДАШБОРД (dash-*) ===== */
+  .dash-root {
+    width: 100%;
+    height: 100%;
+  }
 
-    // ===== НОВОСТИ (карточки) =====
+  .dash-grid {
+    width: 100%;
+    height: 100%;
+  }
 
-    .news-widget-header {
-      background-color: rgba(224, 224, 224, 0.85);
-      padding: 8px 10px;
-      font-weight: 700;
-      border-bottom: 1px solid rgba(0,0,0,0.12);
-    }
+  .widget-flex {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
 
-    /* контейнер списка новостей (если у тебя общий layout вокруг карточек) */
-    .news-widget-container {
-      padding: 8px;
-    }
+  .widget-flex > .dash-body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
 
-    /* карточка */
-    .news-card {
-      padding: 10px 12px;
-      max-width:95%;
-      margin: 8px 8px;
-      border-radius: 10px;
+  .dash-handle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
 
-      background: rgba(255,255,255,0.88);
-      border: 1px solid rgba(0,0,0,0.10);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    padding: 6px 10px;
+    background: rgba(0,0,0,0.08);
+    border-bottom: 1px solid rgba(0,0,0,0.18);
+    cursor: move;
+  }
 
-      cursor: pointer;              // ← “палец”
-      transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
-    }
+  .dash-title {
+    font-weight: 700;
+    font-size: 13px;
+  }
 
-    /* hover эффект */
-    .news-card:hover {
-      background: rgba(255,255,255,0.96);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-      transform: translateY(-1px);
-    }
+  .dash-remove {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 700;
+    opacity: 0.7;
+  }
+  .dash-remove:hover { opacity: 1; }
 
-    /* чтобы при клике было приятно */
-    .news-card:active {
-      transform: translateY(0px);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    }
+  .dash-panel { padding: 10px; display: grid; gap: 8px; }
 
-    /* убираем старый “разделитель снизу”, он больше не нужен */
-    .news-card:last-child {
-      border-bottom: none;
-    }
+  .dash-btn {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.18);
+    background: rgba(255,255,255,0.88);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .dash-btn:hover { background: rgba(255,255,255,0.96); }
 
-    /* заголовок + дата в одну строку (если помещается) */
-    .news-title {
-      font-weight: 700;
+  .dash-menu {
+    margin-top: 6px;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .dash-menu-item {
+    padding: 10px 10px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.9);
+  }
+  .dash-menu-item:hover { background: rgba(0,0,0,0.04); }
+  .dash-menu-item.is-disabled { opacity: 0.4; pointer-events: none; }
+
+  .dash-muted { opacity: 0.65; padding: 8px 4px; }
+
+  .dash-notes-head {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+
+  .dash-notes-date {
+    font-weight: 700;
+    font-size: 12px;
+    opacity: 0.85;
+  }
+
+  .dash-note-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    cursor: pointer;
+  }
+  .dash-note-row:hover { background: rgba(0,0,0,0.03); }
+
+  .dash-note-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dash-note-del {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(200,0,0,0.85);
+    background: rgba(199,7,7,0.85);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .dash-note-del:hover { background: rgba(200,0,0,0.14); }
+  .dash-note-del:active { transform: translateY(1px); }
+
+  /* ===== CLOCK ===== */
+  .clock-widget-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Open Sans", sans-serif;
+    font-weight: bold;
+
+    padding: 0;
+    margin: 0;
+
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* ===== НОВОСТИ (оставил как было — не мешает) ===== */
+  .news-widget-header {
+    background-color: rgba(224, 224, 224, 0.85);
+    padding: 8px 10px;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
+  }
+
+  .news-widget-container { padding: 8px; }
+
+  .news-card {
+    padding: 10px 12px;
+    max-width: 95%;
+    margin: 8px 8px;
+    border-radius: 10px;
+
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(0,0,0,0.10);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+
+    cursor: pointer;
+    transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  }
+
+  .news-card:hover {
+    background: rgba(255,255,255,0.96);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    transform: translateY(-1px);
+  }
+
+  .news-card:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+
+  .news-title { font-weight: 700; font-size: 13px; margin-bottom: 4px; line-height: 1.2; }
+  .news-date { font-size: 11px; color: rgba(0,0,0,0.55); margin-bottom: 6px; }
+
+  .news-text {
+    font-size: 12px;
+    line-height: 1.35;
+    color: rgba(0,0,0,0.80);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+
+  .news-empty {
+    font-style: italic;
+    color: rgba(0,0,0,0.55);
+    padding: 8px 10px;
+  }
+
+  /* ===== старые handle-классы (не мешают, пусть будут) ===== */
+  .notes-drag-handle {
+    background: rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.18);
+    padding: 4px 8px;
+    cursor: move;
+
+    .v-label {
+      font-weight: bold;
       font-size: 13px;
-      margin-bottom: 4px;
-      line-height: 1.2;
     }
+  }
 
-    .news-date {
-      font-size: 11px;
-      color: rgba(0,0,0,0.55);
-      margin-bottom: 6px;
-    }
+  .widget-drag-handle { cursor: move; }
 
-    /* текст новости */
-    .news-text {
-      font-size: 12px;
-      line-height: 1.35;
-      color: rgba(0,0,0,0.80);
+  /* ===== КАЛЕНДАРЬ: кнопки/строки заметок ===== */
+  .sc-note-actions { margin: 8px 0 10px 0; }
 
-      /* чтобы длинный текст не ломал карточку */
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;        // покажет 3 строки и обрежет
-      -webkit-box-orient: vertical;
-    }
+  .sc-create-note {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.85);
+    background: rgba(89,130,223,0.84);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .sc-create-note:hover { background: rgba(0,0,0,0.06); }
+  .sc-create-note:active { transform: translateY(1px); }
 
-    .news-empty {
-      font-style: italic;
-      color: rgba(0,0,0,0.55);
-      padding: 8px 10px;
-    }
+  .sc-note-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 8px;
+    margin: 6px 0;
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.8);
+    cursor: pointer;
+  }
+  .sc-note-row:hover { background: rgba(0,0,0,0.03); }
+
+  .sc-note-summary {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sc-note-del {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(200,0,0,0.85);
+    background: rgba(199,7,7,0.85);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .sc-note-del:hover { background: rgba(200,0,0,0.14); }
+  .sc-note-del:active { transform: translateY(1px); }
+
+  .sc-empty { padding: 6px 0; opacity: 0.7; }
+
+  .calendar .event-container { z-index: 10; }
+
+  /* ✅ правильная блокировка фона при модалке (и НЕ ломает сам Vaadin-диалог) */
+  body.gs-modal-open .dash-root,
+  body.gs-modal-open .dash-root * {
+    pointer-events: none !important;
+  }
+  body.gs-modal-open .v-window,
+  body.gs-modal-open .v-window * {
+    pointer-events: auto !important;
+  }
+
+.dash-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  display: none; /* JS включает flex */
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.40);
+  z-index: 99999;
+}
+
+.dash-picker {
+  max-height: calc(100vh - 28px);
+  overflow: auto;
+  background: rgba(255,255,255,0.98);
+  border-radius: 16px;
+  box-shadow: 0 20px 70px rgba(0,0,0,0.28);
+  border: 1px solid rgba(0,0,0,0.10);
+  padding: 14px;
+}
+
+.dash-picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  margin-bottom: 12px;
+}
+
+.dash-picker-title { font-weight: 800; font-size: 15px; }
+
+.dash-picker-close {
+  border: 1px solid rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.9);
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.dash-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (min-width: 700px) {
+  .dash-picker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.dash-widget-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.10);
+  background: rgba(255,255,255,0.92);
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.dash-widget-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+}
+.dash-widget-card.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.dash-widget-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  background: rgba(0,0,0,0.06);
+  flex: 0 0 auto;
+}
+
+.dash-widget-info { min-width: 0; flex: 1; }
+.dash-widget-title { font-weight: 800; font-size: 13px; margin-bottom: 2px; }
+.dash-widget-desc { font-size: 12px; opacity: 0.75; }
+
+.dash-widget-action {
+  font-weight: 800;
+  font-size: 12px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.16);
+  background: rgba(89,130,223,0.18);
+  flex: 0 0 auto;
+}
+.dash-widget-card.is-disabled .dash-widget-action {
+  background: rgba(0,0,0,0.06);
+}
+
+/* пока открыт наш пикер — не даём гриду ловить клики */
+body.dash-picker-open .grid-stack { pointer-events: none !important; }
+body.dash-picker-open .dash-picker-backdrop { pointer-events: auto !important; }
 
 
-    .grid-stack {
-        width: 100%;
-        height: 100%;
-    }
-
-    .v-csslayout-grid-stack {
-        width: 350px;
-        height: 400px;
-    }
-    .notes-drag-handle {
-      background: rgba(0, 0, 0, 0.08);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.18);
-      padding: 4px 8px;
-      cursor: move;
-
-      .v-label {
-        font-weight: bold;
-        font-size: 13px;
-      }
-    }
-
-    .widget-drag-handle {
-      cursor: move;
-    }
-
-
-
-
-
-    /* ===== КАЛЕНДАРЬ: кнопки и строки заметок в окне ===== */
-
-    /* контейнер кнопки "Создать" */
-    .sc-note-actions {
-      margin: 8px 0 10px 0;
-    }
-
-    /* кнопка "+ Создать заметку" */
-    .sc-create-note {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 6px;
-      border: 1px solid rgba(0,0,0,0.85);
-      background: rgba(89,130,223,0.84);
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .sc-create-note:hover {
-      background: rgba(0,0,0,0.06);
-    }
-
-    .sc-create-note:active {
-      transform: translateY(1px);
-    }
-
-    /* строка заметки (summary + delete) */
-    .sc-note-row {
+  /* ===== фон ===== */
+  .dashboard-background {
+    background: url("dashSample.jpg") no-repeat center center fixed;
+    background-size: cover;
+  }
+   .grid-stack-item-content.widget-flex {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 8px;
-      margin: 6px 0;
-      border-radius: 6px;
-      border: 1px solid rgba(0,0,0,0.08);
-      background: rgba(255,255,255,0.8);
-      cursor: pointer;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      box-sizing: border-box;
+
+      padding: 12px;
+      border-radius: 8px;
+
+      /* если “карточки” выглядят плоско — можно добавить: */
+      /* box-shadow: 0 2px 10px rgba(0,0,0,.08); */
+      /* background: #fff; */
     }
 
-    .sc-note-row:hover {
-      background: rgba(0,0,0,0.03);
-    }
-
-    /* текст заметки */
-    .sc-note-summary {
-      flex: 1;
-      min-width: 0;              /* важно для переносов в flex */
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    /* кнопка "Удалить" */
-    .sc-note-del {
-      padding: 6px 10px;
-      border-radius: 6px;
-      border: 1px solid rgba(200,0,0,0.85);
-      background: rgba(199,7,7,0.85);
-      cursor: pointer;
+    .grid-stack-item-content.widget-flex .widget-header {
+      flex: 0 0 auto;
       font-weight: 600;
+      margin-bottom: 8px;
+      cursor: move; // если хочешь тянуть за шапку
     }
 
-    /* чтобы клик по "Удалить" не выглядел как выбор всей строки */
-    .sc-note-del:hover {
-      background: rgba(200,0,0,0.14);
+    .grid-stack-item-content.widget-flex .widget-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
     }
-
-    .sc-note-del:active {
-      transform: translateY(1px);
-    }
-
-    /* "Нет заметок" */
-    .sc-empty {
-      padding: 6px 0;
-      opacity: 0.7;
-    }
-
-/* Пока Vaadin-диалог открыт/закрывается — фон НЕ кликабелен */
-body.gs-modal-open .grid-stack,
-body.gs-modal-open .calendar-widget-container,
-body.gs-modal-open .simple-calendar {
-  pointer-events: none !important;
 }
-.calendar .event-container {
-z-index:10;
-
-}
-
-
-    .dashboard-background {
-        background: url("dashSample.jpg") no-repeat center center fixed;
-        background-size: cover;
-    }
-
-
-
-    }
