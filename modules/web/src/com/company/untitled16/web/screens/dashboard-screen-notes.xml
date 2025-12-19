@@ -17,7 +17,7 @@
                 <dependency path="vaadin://grid/gridstack.min.css"/>
                 <dependency path="vaadin://simple-calendar/jquery.simple-calendar.js"/>
                 <dependency path="vaadin://simple-calendar/simple-calendar.css"/>
-                <dependency path="vaadin://grid/dashboard-notes-connector78.js"/>
+                <dependency path="vaadin://grid/dashboard-notes-connector94.js"/>
             </dependencies>
         </jsComponent>
     </layout>

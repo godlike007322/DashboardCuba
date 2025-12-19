@@ -8,5 +8,6 @@
         <item screen="untitled16_DashboardScreenNotes" caption="mainMsg://menu_config.untitled16_DashboardScreenNotes"/>
         <item screen="untitled16_News.browse" caption="mainMsg://menu_config.untitled16_News.browse"/>
         <item screen="untitled16_NotesWithDate.browse" caption="mainMsg://menu_config.untitled16_NotesWithDate.browse"/>
+        <item screen="untitled16_RecentDoc.browse" caption="mainMsg://menu_config.untitled16_RecentDoc.browse"/>
     </menu>
 </menu-config>

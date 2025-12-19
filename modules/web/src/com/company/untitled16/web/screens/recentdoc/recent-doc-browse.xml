@@ -1,50 +1,49 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
         xmlns:c="http://schemas.haulmont.com/cuba/screen/jpql_condition.xsd"
-        caption="msg://newsBrowse.caption"
-        focusComponent="newsTable"
-        messagesPack="com.company.untitled16.web.screens.news">
+        caption="msg://recentDocBrowse.caption"
+        focusComponent="recentDocsTable"
+        messagesPack="com.company.untitled16.web.screens.recentdoc">
     <data readOnly="true">
-        <collection id="newsCollectionDc"
-                    class="com.company.untitled16.entity.News">
+        <collection id="recentDocsDc"
+                    class="com.company.untitled16.entity.RecentDoc">
             <view extends="_local"/>
-            <loader id="newsCollectionDl">
+            <loader id="recentDocsDl">
                 <query>
-                    <![CDATA[select e from untitled16_News e]]>
+                    <![CDATA[select e from untitled16_RecentDoc e]]>
                 </query>
             </loader>
         </collection>
     </data>
     <dialogMode height="600"
                 width="800"/>
-    <layout expand="newsTable"
+    <layout expand="recentDocsTable"
             spacing="true">
         <filter id="filter"
-                applyTo="newsTable"
-                dataLoader="newsCollectionDl">
+                applyTo="recentDocsTable"
+                dataLoader="recentDocsDl">
             <properties include=".*"/>
         </filter>
-        <groupTable id="newsTable"
+        <groupTable id="recentDocsTable"
                     width="100%"
-                    dataContainer="newsCollectionDc">
+                    dataContainer="recentDocsDc">
             <actions>
                 <action id="create" type="create"/>
                 <action id="edit" type="edit"/>
                 <action id="remove" type="remove"/>
-                <action id="print" type="listPrintForm"/>
             </actions>
             <columns>
-                <column id="title"/>
-                <column id="shortText"/>
-                <column id="publishDate"/>
+                <column id="entityName"/>
+                <column id="entityId"/>
+                <column id="caption"/>
+                <column id="visitedTs"/>
             </columns>
             <rowsCount/>
             <buttonsPanel id="buttonsPanel"
                           alwaysVisible="true">
-                <button id="createBtn" action="newsTable.create"/>
-                <button id="editBtn" action="newsTable.edit"/>
-                <button id="removeBtn" action="newsTable.remove"/>
-                <button id="print" action="newsTable.print" caption="Печать"/>
+                <button id="createBtn" action="recentDocsTable.create"/>
+                <button id="editBtn" action="recentDocsTable.edit"/>
+                <button id="removeBtn" action="recentDocsTable.remove"/>
             </buttonsPanel>
         </groupTable>
         <hbox id="lookupActions" spacing="true" visible="false">

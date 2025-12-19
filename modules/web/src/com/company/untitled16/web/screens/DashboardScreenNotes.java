@@ -1,20 +1,18 @@
 package com.company.untitled16.web.screens;
 
 import com.company.untitled16.entity.Notes;
+import com.company.untitled16.entity.News;
+import com.company.untitled16.service.RecentDocsService;
 import com.google.gson.Gson;
 import com.haulmont.bali.util.ParamsMap;
 import com.haulmont.cuba.core.global.DataManager;
+import com.haulmont.cuba.core.global.View;
 import com.haulmont.cuba.gui.Dialogs;
-import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.ScreenBuilders;
-import com.haulmont.cuba.gui.UiComponents;
-import com.haulmont.cuba.gui.app.core.inputdialog.DialogActions;
-import com.haulmont.cuba.gui.app.core.inputdialog.DialogOutcome;
-import com.haulmont.cuba.gui.app.core.inputdialog.InputParameter;
 import com.haulmont.cuba.gui.components.DialogAction;
-import com.haulmont.cuba.gui.components.LookupField;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.web.gui.components.JavaScriptComponent;
+import org.jsoup.Jsoup;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
@@ -24,69 +22,186 @@ import java.util.*;
 @UiDescriptor("dashboard-screen-notes.xml")
 public class DashboardScreenNotes extends Screen {
 
+
+
     @Inject private JavaScriptComponent gridJs;
     @Inject private DataManager dataManager;
     @Inject private ScreenBuilders screenBuilders;
     @Inject private Dialogs dialogs;
-    @Inject private Notifications notifications;
-    @Inject private UiComponents uiComponents;
+    @Inject private RecentDocsService recentDocService;
 
     private final Gson gson = new Gson();
 
-    // ===== список виджетов (ID должен совпадать с тем, что JS ждёт)
-    private enum WidgetKind {
-        CLOCK("widget-clock", "Часы"),
-        NOTES("widget-notes", "Заметки"),
-        CALENDAR("widget-calendar", "Календарь"),
-        NEWS("widget-news", "Новости");
-
-        private final String id;
-        private final String caption;
-
-        WidgetKind(String id, String caption) {
-            this.id = id;
-            this.caption = caption;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        @Override
-        public String toString() {
-            return caption; // чтобы в LookupField показывалось красиво
-        }
+    private String toPlainText(String html) {
+        if (html == null) return "";
+        String text = Jsoup.parse(html).text();
+        text = text.replace('\u00A0', ' ');
+        return text.trim();
     }
+
+    private void sendRecentToJs(int limit) {
+        List<RecentDocsService.RecentDocInfo> recents = recentDocService.loadLast(limit);
+
+        List<Map<String, Object>> items = new ArrayList<>();
+        for (RecentDocsService.RecentDocInfo r : recents) {
+            items.add(ParamsMap.of(
+                    "entityName", r.getEntityName(),
+                    "entityId", r.getEntityId() != null ? r.getEntityId().toString() : null,
+                    "caption", r.getCaption(),
+                    // чтобы JS делал new Date(ms)
+                    "visitedTs", r.getVisitedTs() != null ? r.getVisitedTs().getTime() : null
+            ));
+        }
+
+        gridJs.callFunction("applyRecentDocs", gson.toJson(items));
+    }
+    private void handleMissingRecent(String entityName, UUID id, String caption) {
+        dialogs.createMessageDialog()
+                .withCaption("Недоступно")
+                .withMessage(caption + " Документ недоступен. Документ будет удален из списка последних.")
+                .show();
+
+        recentDocService.remove(entityName, id); // метод remove добавим в сервис
+        sendRecentToJs(10);
+    }
+
 
     @Subscribe
     public void onInit(InitEvent event) {
 
-        // ===== JS -> Java: открыть окно выбора виджета
-        // JS будет передавать JSON-массив текущих id, чтобы скрыть уже добавленные
-        gridJs.addFunction("showAddWidgetDialog", cb -> {
-            String existingJson = "[]";
+        // ===== RECENT: JS -> Java: запросить последние документы
+        gridJs.addFunction("requestRecentDocs", cb -> {
+            int limit = 10;
             try {
                 if (cb.getArguments() != null && cb.getArguments().length() > 0) {
-                    existingJson = cb.getArguments().getString(0);
+                    limit = (int) cb.getArguments().getNumber(0);
                 }
             } catch (Exception ignored) {}
-
-            Set<String> existingIds = new HashSet<>();
-            try {
-                String[] arr = gson.fromJson(existingJson, String[].class);
-                if (arr != null) existingIds.addAll(Arrays.asList(arr));
-            } catch (Exception ignored) {}
-
-            showAddWidgetDialog(existingIds);
+            sendRecentToJs(limit);
         });
 
-        // ===== JS -> Java: события на месяц (для календаря)
+        // ===== RECENT: JS -> Java: открыть документ из списка
+        gridJs.addFunction("openRecentDoc", cb -> {
+            String entityName = cb.getArguments().getString(0);
+            UUID id = UUID.fromString(cb.getArguments().getString(1));
+
+            if ("untitled16_News".equals(entityName)) {
+                Optional<News> opt = dataManager.load(News.class)
+                        .id(id)
+                        .view(new View(News.class).addProperty("title").addProperty("fullText"))
+                        .optional();
+
+                if (!opt.isPresent()) {
+                    handleMissingRecent(entityName, id, "Новость");
+                    return;
+                }
+
+                News n = opt.get();
+                recentDocService.register("untitled16_News", n.getId(), n.getTitle());
+                sendRecentToJs(10);
+
+                dialogs.createMessageDialog()
+                        .withCaption(n.getTitle() != null ? n.getTitle() : "Новость")
+                        .withMessage(n.getFullText() != null ? n.getFullText() : "")
+                        .show();
+                return;
+            }
+
+            if ("untitled16_Notes".equals(entityName)) {
+                Optional<Notes> opt = dataManager.load(Notes.class).id(id).optional();
+
+                if (!opt.isPresent()) {
+                    handleMissingRecent(entityName, id, "Заметка");
+                    return;
+                }
+
+                Notes note = opt.get();
+                recentDocService.register("untitled16_Notes", note.getId(), shorten(toPlainText(note.getText()), 80));
+                sendRecentToJs(10);
+
+                Screen editor = screenBuilders.editor(Notes.class, this)
+                        .editEntity(note)
+                        .withOpenMode(OpenMode.DIALOG)
+                        .build();
+
+                editor.addAfterCloseListener(e2 -> {
+                    if (e2.closedWith(StandardOutcome.COMMIT) && note.getNoteDate() != null) {
+                        gridJs.callFunction("refreshAfterNoteChange", note.getNoteDate().toString());
+                    }
+                });
+
+                editor.show();
+                return;
+            }
+
+            dialogs.createMessageDialog()
+                    .withCaption("Неизвестный тип")
+                    .withMessage("Не знаю как открыть: " + entityName)
+                    .show();
+        });
+
+        // ===== NEWS: запросить список новостей
+        gridJs.addFunction("requestNews", cb -> {
+            List<News> newsList = dataManager.load(News.class)
+                    .query("select e from untitled16_News e order by e.createTs desc")
+                    .view(new View(News.class)
+                            .addProperty("title")
+                            .addProperty("shortText"))
+                    .maxResults(15)
+                    .list();
+
+            List<Map<String, Object>> items = new ArrayList<>();
+            for (News n : newsList) {
+                items.add(ParamsMap.of(
+                        "id", n.getId().toString(),
+                        "title", n.getTitle(),
+                        "shortText", shorten(n.getShortText(), 220)
+                ));
+            }
+
+            gridJs.callFunction("applyNews", gson.toJson(items));
+        });
+
+        // ===== NEWS: открыть новость
+        gridJs.addFunction("openNews", cb -> {
+            UUID id = UUID.fromString(cb.getArguments().getString(0));
+
+            Optional<News> opt = dataManager.load(News.class)
+                    .id(id)
+                    .view(new View(News.class)
+                            .addProperty("title")
+                            .addProperty("fullText"))
+                    .optional();
+
+            if (!opt.isPresent()) {
+                dialogs.createMessageDialog()
+                        .withCaption("Недоступно")
+                        .withMessage("Новость удалена или нет прав.")
+                        .show();
+
+                recentDocService.remove("untitled16_News", id); // если она была в recent
+                sendRecentToJs(10);
+                return;
+            }
+
+            News n = opt.get();
+
+            recentDocService.register("untitled16_News", n.getId(), n.getTitle());
+            sendRecentToJs(10);
+
+            dialogs.createMessageDialog()
+                    .withCaption(n.getTitle() != null ? n.getTitle() : "Новость")
+                    .withMessage(n.getFullText() != null ? n.getFullText() : "")
+                    .show();
+        });
+
+        // ===== календарь: события на месяц
         gridJs.addFunction("requestNotesForMonth", cb -> {
-            int year  = (int) cb.getArguments().getNumber(0);
-            int month = (int) cb.getArguments().getNumber(1); // 1..12
+            int year = (int) cb.getArguments().getNumber(0);
+            int month = (int) cb.getArguments().getNumber(1);
 
             LocalDate start = LocalDate.of(year, month, 1);
-            LocalDate end   = start.plusMonths(1);
+            LocalDate end = start.plusMonths(1);
 
             List<Notes> notes = dataManager.load(Notes.class)
                     .query("select e from untitled16_Notes e " +
@@ -101,16 +216,16 @@ public class DashboardScreenNotes extends Screen {
             for (Notes n : notes) {
                 events.add(ParamsMap.of(
                         "startDate", n.getNoteDate().toString(),
-                        "endDate",   n.getNoteDate().toString(),
-                        "summary",   shorten(n.getText(), 60),
-                        "noteId",    n.getId().toString()
+                        "endDate", n.getNoteDate().toString(),
+                        "summary", shorten(toPlainText(n.getText()), 60),
+                        "noteId", n.getId().toString()
                 ));
             }
 
             gridJs.callFunction("applyCalendarEvents", gson.toJson(events));
         });
 
-        // ===== JS -> Java: список заметок на конкретный день (если у тебя есть виджет заметок по дню)
+        // ===== заметки: список на день
         gridJs.addFunction("requestNotesForDay", cb -> {
             LocalDate day = LocalDate.parse(cb.getArguments().getString(0));
 
@@ -123,17 +238,34 @@ public class DashboardScreenNotes extends Screen {
             for (Notes n : notes) {
                 items.add(ParamsMap.of(
                         "noteId", n.getId().toString(),
-                        "summary", shorten(n.getText(), 120)
+                        "summary", shorten(toPlainText(n.getText()), 120)
                 ));
             }
 
             gridJs.callFunction("applyDayNotes", day.toString(), gson.toJson(items));
         });
 
-        // ===== JS -> Java: открыть заметку
+        // ===== открыть заметку
         gridJs.addFunction("openNote", cb -> {
             UUID id = UUID.fromString(cb.getArguments().getString(0));
-            Notes note = dataManager.load(Notes.class).id(id).one();
+
+            Optional<Notes> opt = dataManager.load(Notes.class).id(id).optional();
+            if (!opt.isPresent()) {
+                dialogs.createMessageDialog()
+                        .withCaption("Недоступно")
+                        .withMessage("Заметка удалена или нет прав.")
+                        .show();
+
+                recentDocService.remove("untitled16_Notes", id);
+                sendRecentToJs(10);
+                return;
+            }
+
+            Notes note = opt.get();
+
+            recentDocService.register("untitled16_Notes", note.getId(),
+                    shorten(toPlainText(note.getText()), 80));
+            sendRecentToJs(10);
 
             Screen editor = screenBuilders.editor(Notes.class, this)
                     .editEntity(note)
@@ -149,7 +281,7 @@ public class DashboardScreenNotes extends Screen {
             editor.show();
         });
 
-        // ===== JS -> Java: создать заметку на дату
+        // ===== создать заметку
         gridJs.addFunction("createNoteForDate", cb -> {
             LocalDate date = LocalDate.parse(cb.getArguments().getString(0));
 
@@ -164,13 +296,14 @@ public class DashboardScreenNotes extends Screen {
             editor.addAfterCloseListener(e2 -> {
                 if (e2.closedWith(StandardOutcome.COMMIT)) {
                     gridJs.callFunction("refreshAfterNoteChange", date.toString());
+                    sendRecentToJs(10);
                 }
             });
 
             editor.show();
         });
 
-        // ===== JS -> Java: удалить заметку (с подтверждением)
+        // ===== удалить заметку
         gridJs.addFunction("confirmDeleteNote", cb -> {
             String noteId = cb.getArguments().getString(0);
             String isoDate = cb.getArguments().getString(1);
@@ -183,53 +316,13 @@ public class DashboardScreenNotes extends Screen {
                                 UUID id = UUID.fromString(noteId);
                                 Notes n = dataManager.load(Notes.class).id(id).optional().orElse(null);
                                 if (n != null) dataManager.remove(n);
-
                                 gridJs.callFunction("noteDeleted", noteId, isoDate);
+                                sendRecentToJs(10);
                             }),
                             new DialogAction(DialogAction.Type.NO)
                     )
                     .show();
         });
-    }
-
-    private void showAddWidgetDialog(Set<String> existingIds) {
-        List<WidgetKind> available = new ArrayList<>();
-        for (WidgetKind w : WidgetKind.values()) {
-            if (!existingIds.contains(w.getId())) available.add(w);
-        }
-
-        if (available.isEmpty()) {
-            notifications.create(Notifications.NotificationType.TRAY)
-                    .withCaption("Все виджеты уже добавлены")
-                    .show();
-            return;
-        }
-
-        dialogs.createInputDialog(this)
-                .withCaption("Добавить виджет")
-                .withParameters(
-                        InputParameter.parameter("widget")
-                                .withField(() -> {
-                                    LookupField<WidgetKind> lf = uiComponents.create(LookupField.of(WidgetKind.class));
-                                    lf.setCaption("Виджет");
-                                    lf.setOptionsList(available);
-                                    lf.setRequired(true);
-                                    lf.setWidthFull();
-                                    lf.setValue(available.get(0));
-                                    return lf;
-                                })
-                )
-                .withActions(DialogActions.OK_CANCEL)
-                .withCloseListener(closeEvent -> {
-                    if (!closeEvent.closedWith(DialogOutcome.OK)) return;
-
-                    WidgetKind w = closeEvent.getValue("widget");
-                    if (w == null) return;
-
-                    // Java -> JS: добавить выбранный виджет
-                    gridJs.callFunction("addWidgetById", w.getId());
-                })
-                .show();
     }
 
     @Subscribe

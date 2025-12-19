@@ -1,3 +1,4 @@
+// dashboard-notes-connector78.js
 // initFunctionName в XML: com_company_untitled16_web_ui_components_jscomponent_GridDashboard
 window.com_company_untitled16_web_ui_components_jscomponent_GridDashboard = function () {
   var connector = this;
@@ -13,34 +14,25 @@ window.com_company_untitled16_web_ui_components_jscomponent_GridDashboard = func
   // ===== state =====
   var grid = null;
   var $grid = null;
-
   var LS_KEY = 'dash.layout.v3';
 
-  // picker (наш JS-диалог)
-  var picker = {
-    inited: false,
-    backdrop: null
-  };
+  // HTML picker
+  var picker = { inited: false, backdrop: null };
 
   // ===== utils =====
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
-
   function toIso(d) {
     var y = d.getFullYear();
     var m = ('0' + (d.getMonth() + 1)).slice(-2);
     var day = ('0' + d.getDate()).slice(-2);
     return y + '-' + m + '-' + day;
   }
-
   function isoToDate(iso) {
     var p = String(iso || '').split('-');
     if (p.length !== 3) return new Date();
     return new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
   }
-
-  function widgetExists(id) {
-    return !!element.querySelector('#' + id);
-  }
+  function widgetExists(id) { return !!element.querySelector('#' + id); }
 
   function defaultRectById(id) {
     switch (id) {
@@ -48,6 +40,8 @@ window.com_company_untitled16_web_ui_components_jscomponent_GridDashboard = func
       case 'widget-clock':    return { x: 3, y: 0, w: 3, h: 2 };
       case 'widget-calendar': return { x: 6, y: 0, w: 6, h: 6 };
       case 'widget-notes':    return { x: 0, y: 2, w: 6, h: 6 };
+      case 'widget-news':     return { x: 0, y: 8, w: 6, h: 4 };
+      case 'widget-recent':   return { x: 6, y: 8, w: 6, h: 4 };
       default: return { x: 0, y: 0, w: 3, h: 3 };
     }
   }
@@ -90,7 +84,6 @@ window.com_company_untitled16_web_ui_components_jscomponent_GridDashboard = func
     var title = id;
     var bodyHtml = '';
     var canRemove = (id !== 'widget-manager');
-
     if (id === 'widget-manager') {
       title = 'Панель';
       bodyHtml =
@@ -100,7 +93,11 @@ window.com_company_untitled16_web_ui_components_jscomponent_GridDashboard = func
         '</div>';
     } else if (id === 'widget-clock') {
       title = 'Часы';
-      bodyHtml = '<div class="clock-widget-container dash-clock"></div>';
+      bodyHtml =
+        '<div class="dash-clock-wrap">' +
+        '  <div class="dash-clock-time"></div>' +
+        '  <div class="dash-clock-date"></div>' +
+        '</div>';
     } else if (id === 'widget-calendar') {
       title = 'Календарь';
       bodyHtml = '<div class="calendar-widget-container"></div>';
@@ -112,6 +109,20 @@ window.com_company_untitled16_web_ui_components_jscomponent_GridDashboard = func
         '  <button type="button" class="dash-btn dash-create-note">+ Создать</button>' +
         '</div>' +
         '<div class="dash-notes-list"></div>';
+    } else if (id === 'widget-news') {
+      title = 'Новости';
+      bodyHtml =
+        '<div class="dash-news-head">' +
+        '  <button type="button" class="dash-btn dash-news-refresh">Обновить</button>' +
+        '</div>' +
+        '<div class="dash-news-list"></div>';
+    } else if (id === 'widget-recent') {
+      title = 'Последние документы';
+      bodyHtml =
+        '<div class="dash-recent-head">' +
+        '  <button type="button" class="dash-btn dash-recent-refresh">Обновить</button>' +
+        '</div>' +
+        '<div class="dash-recent-list"></div>';
     } else {
       bodyHtml = '<div>Unknown widget</div>';
     }
@@ -162,14 +173,12 @@ window.com_company_untitled16_web_ui_components_jscomponent_GridDashboard = func
     try { arr = JSON.parse(raw); } catch (e) { arr = null; }
     if (!arr || !arr.length) return false;
 
-    // manager first
     var mgr = arr.filter(function (x) { return x && x.id === 'widget-manager'; })[0];
     addWidget('widget-manager',
       mgr ? { x: mgr.x || 0, y: mgr.y || 0, w: mgr.w || 3, h: mgr.h || 2 } : defaultRectById('widget-manager'),
       true
     );
 
-    // others
     arr.forEach(function (it) {
       if (!it || !it.id || it.id === 'widget-manager') return;
       addWidget(it.id, { x: it.x || 0, y: it.y || 0, w: it.w || 3, h: it.h || 3 }, true);
@@ -178,11 +187,84 @@ window.com_company_untitled16_web_ui_components_jscomponent_GridDashboard = func
     return true;
   }
 
-  // ===== picker (красивое окно выбора виджетов) =====
+  // ===== picker styles + widgets styles =====
+  function injectPickerStylesOnce() {
+    if (document.getElementById('dash-picker-styles')) return;
+
+    var css = [
+      '.dash-picker-backdrop{display:none;align-items:center;justify-content:center;',
+      '  position:fixed;left:0;top:0;right:0;bottom:0;',
+      '  background:rgba(0,0,0,.40);z-index:99999;',
+      '}',
+      '.dash-picker{width:min(760px,92vw);background:#fff;border-radius:14px;overflow:hidden;',
+      '  box-shadow:0 12px 40px rgba(0,0,0,.25);',
+      '}',
+      '.dash-picker-head{display:flex;align-items:center;justify-content:space-between;gap:10px;',
+      '  padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.08);background:#fafafa;',
+      '}',
+      '.dash-picker-title{font-weight:800;font-size:16px;}',
+      '.dash-picker-close{border:none;background:transparent;cursor:pointer;width:34px;height:34px;',
+      '  border-radius:10px;font-size:16px;',
+      '}',
+      '.dash-picker-close:hover{background:rgba(0,0,0,.06);}',
+      '.dash-picker-grid{display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:10px;padding:12px;}',
+      '@media (min-width:760px){.dash-picker-grid{grid-template-columns:repeat(4,minmax(0,1fr));}}',
+      '.dash-widget-card{display:flex;flex-direction:column;gap:10px;',
+      '  border:1px solid rgba(0,0,0,.10);border-radius:12px;padding:12px;cursor:pointer;background:#fff;',
+      '}',
+      '.dash-widget-card:hover{background:#fafafa;}',
+      '.dash-widget-icon{font-size:28px;}',
+      '.dash-widget-title{font-weight:800;}',
+      '.dash-widget-desc{color:#6f6f6f;font-size:13px;margin-top:2px;}',
+      '.dash-widget-action{margin-top:auto;font-weight:800;color:#333;',
+      '  padding:8px 10px;border-radius:10px;border:1px solid rgba(0,0,0,.12);text-align:center;',
+      '}',
+      '.dash-widget-card:hover .dash-widget-action{background:#f6f6f6;}',
+      '.dash-widget-card.is-disabled{opacity:.45;cursor:not-allowed;}',
+      '.dash-widget-card.is-disabled:hover{background:#fff;}',
+      '.dash-widget-card.is-disabled .dash-widget-action{background:#fff;}',
+      'body.dash-picker-open{overflow:hidden;}',
+'.widget-flex{height:100%;display:flex;flex-direction:column;}',
+'.dash-body{flex:1;min-height:0;}',
+'.dash-handle{flex:0 0 auto;}',
+
+      // NEWS
+      '.dash-news-row{padding:10px 10px;border-bottom:1px solid rgba(0,0,0,.06);cursor:pointer;}',
+      '.dash-news-row:hover{background:rgba(0,0,0,.03);}',
+      '.dash-news-title{font-weight:800;}',
+      '.dash-news-short{font-size:13px;opacity:.85;margin-top:4px;line-height:1.25;}',
+
+      // CLOCK (адаптивные большие часы)
+// CLOCK (большие, занимают почти весь виджет)
+'.dash-clock-wrap{height:100%;width:100%;padding:0;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;overflow:hidden;}',
+'.dash-clock-time{font-weight:900;line-height:1;letter-spacing:.02em;white-space:nowrap;font-size:var(--dash-clock-size, 80px);font-variant-numeric:tabular-nums;}',
+'.dash-clock-sec{font-size:.38em;opacity:.65;font-weight:800;margin-left:8px;vertical-align:baseline;}',
+'.dash-clock-date{font-size:clamp(11px,1.1vw,16px);opacity:.75;white-space:nowrap;}',
+
+
+      // RECENT
+      '.dash-recent-row{padding:10px 10px;border-bottom:1px solid rgba(0,0,0,.06);cursor:pointer;display:flex;gap:10px;align-items:flex-start;}',
+      '.dash-recent-row:hover{background:rgba(0,0,0,.03);}',
+      '.dash-recent-ico{width:22px;min-width:22px;opacity:.85;font-size:16px;line-height:1.2;margin-top:2px;}',
+      '.dash-recent-main{flex:1;min-width:0;}',
+      '.dash-recent-cap{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
+      '.dash-recent-meta{font-size:12px;opacity:.75;margin-top:3px;}'
+    ].join('\n');
+
+    var st = document.createElement('style');
+    st.id = 'dash-picker-styles';
+    st.type = 'text/css';
+    st.appendChild(document.createTextNode(css));
+    document.head.appendChild(st);
+  }
+
+  // ===== picker HTML menu =====
   function ensurePicker() {
     if (picker.inited) return;
     picker.inited = true;
-injectPickerStylesOnce();
+
+    injectPickerStylesOnce();
+
     var html =
       '<div class="dash-picker-backdrop" style="display:none">' +
       '  <div class="dash-picker" role="dialog" aria-modal="true">' +
@@ -193,17 +275,27 @@ injectPickerStylesOnce();
       '    <div class="dash-picker-grid">' +
       '      <div class="dash-widget-card" data-widget="widget-clock">' +
       '        <div class="dash-widget-icon">🕒</div>' +
-      '        <div class="dash-widget-info"><div class="dash-widget-title">Часы</div><div class="dash-widget-desc">Текущее время</div></div>' +
+      '        <div><div class="dash-widget-title">Часы</div><div class="dash-widget-desc">Текущее время</div></div>' +
       '        <div class="dash-widget-action">Добавить</div>' +
       '      </div>' +
       '      <div class="dash-widget-card" data-widget="widget-calendar">' +
       '        <div class="dash-widget-icon">📅</div>' +
-      '        <div class="dash-widget-info"><div class="dash-widget-title">Календарь</div><div class="dash-widget-desc">Заметки по датам</div></div>' +
+      '        <div><div class="dash-widget-title">Календарь</div><div class="dash-widget-desc">Заметки по датам</div></div>' +
       '        <div class="dash-widget-action">Добавить</div>' +
       '      </div>' +
       '      <div class="dash-widget-card" data-widget="widget-notes">' +
       '        <div class="dash-widget-icon">📝</div>' +
-      '        <div class="dash-widget-info"><div class="dash-widget-title">Заметки</div><div class="dash-widget-desc">Список заметок за день</div></div>' +
+      '        <div><div class="dash-widget-title">Заметки</div><div class="dash-widget-desc">Список за день</div></div>' +
+      '        <div class="dash-widget-action">Добавить</div>' +
+      '      </div>' +
+      '      <div class="dash-widget-card" data-widget="widget-news">' +
+      '        <div class="dash-widget-icon">📰</div>' +
+      '        <div><div class="dash-widget-title">Новости</div><div class="dash-widget-desc">Из сущности News</div></div>' +
+      '        <div class="dash-widget-action">Добавить</div>' +
+      '      </div>' +
+      '      <div class="dash-widget-card" data-widget="widget-recent">' +
+      '        <div class="dash-widget-icon">🕘</div>' +
+      '        <div><div class="dash-widget-title">Последние</div><div class="dash-widget-desc">10 последних документов</div></div>' +
       '        <div class="dash-widget-action">Добавить</div>' +
       '      </div>' +
       '    </div>' +
@@ -213,29 +305,15 @@ injectPickerStylesOnce();
     document.body.insertAdjacentHTML('beforeend', html);
     picker.backdrop = document.body.querySelector('.dash-picker-backdrop');
 
-    // fallback-стили (чтобы было видно даже если тема не собралась)
-    picker.backdrop.style.position = 'fixed';
-    picker.backdrop.style.left = '0';
-    picker.backdrop.style.top = '0';
-    picker.backdrop.style.right = '0';
-    picker.backdrop.style.bottom = '0';
-    picker.backdrop.style.alignItems = 'center';
-    picker.backdrop.style.justifyContent = 'center';
-    picker.backdrop.style.background = 'rgba(0,0,0,0.40)';
-    picker.backdrop.style.zIndex = '99999';
-
-    // close by backdrop
     picker.backdrop.addEventListener('click', function (e) {
       if (e.target === picker.backdrop) closePicker();
     });
 
-    // close button
     picker.backdrop.querySelector('.dash-picker-close').addEventListener('click', function (e) {
       e.preventDefault(); e.stopPropagation();
       closePicker();
     });
 
-    // click card
     picker.backdrop.querySelector('.dash-picker-grid').addEventListener('click', function (e) {
       var card = e.target.closest ? e.target.closest('.dash-widget-card') : null;
       if (!card) return;
@@ -249,7 +327,6 @@ injectPickerStylesOnce();
       closePicker();
     });
 
-    // ESC
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closePicker();
     });
@@ -313,13 +390,15 @@ injectPickerStylesOnce();
 
         localStorage.removeItem(LS_KEY);
 
-        ['widget-clock', 'widget-calendar', 'widget-notes'].forEach(function (x) {
+        ['widget-clock', 'widget-calendar', 'widget-notes', 'widget-news', 'widget-recent'].forEach(function (x) {
           if (widgetExists(x)) removeWidget(x);
         });
 
         addWidget('widget-clock', defaultRectById('widget-clock'), false);
         addWidget('widget-calendar', defaultRectById('widget-calendar'), false);
         addWidget('widget-notes', defaultRectById('widget-notes'), false);
+        addWidget('widget-news', defaultRectById('widget-news'), false);
+        addWidget('widget-recent', defaultRectById('widget-recent'), false);
 
         saveLayout();
       });
@@ -328,88 +407,141 @@ injectPickerStylesOnce();
     if (id === 'widget-clock') startClock();
     if (id === 'widget-calendar') initCalendar();
     if (id === 'widget-notes') initNotesWidget();
+    if (id === 'widget-news') initNewsWidget();
+    if (id === 'widget-recent') initRecentWidget();
   }
 
   // ===== clock =====
-  var clockTimer = null;
+// ===== clock =====
+var clockTimer = null;
+var clockRO = null;
+var clockRAF = 0;
+
+function fitClock() {
+  var tile = element.querySelector('#widget-clock');
+  if (!tile) return;
+
+  var body = tile.querySelector('.dash-body');
+  var timeEl = tile.querySelector('.dash-clock-time');
+  var dateEl = tile.querySelector('.dash-clock-date');
+  if (!body || !timeEl) return;
+
+  var availW = Math.max(0, body.clientWidth - 8);
+  var availH = Math.max(0, body.clientHeight - 8);
+
+  // место под дату
+  var reserve = 0;
+  if (dateEl) {
+    reserve = Math.min(40, Math.max(16, dateEl.offsetHeight || 18)) + 4;
+  }
+  var availTimeH = Math.max(0, availH - reserve);
+
+  // измеряем в "базовом" размере и масштабируем (чтобы точно влезало)
+  var base = 100;
+  timeEl.style.fontSize = base + 'px';
+  timeEl.style.lineHeight = '1';
+
+  // форсим layout
+  var sw = timeEl.scrollWidth || timeEl.getBoundingClientRect().width;
+  var sh = timeEl.scrollHeight || timeEl.getBoundingClientRect().height;
+
+  timeEl.style.fontSize = ''; // обратно на CSS var
+
+  if (!sw || !sh) return;
+
+  var scale = Math.min(availW / sw, availTimeH / sh);
+  var size = Math.floor(base * scale);
+
+  size = Math.min(260, Math.max(18, size));
+  tile.style.setProperty('--dash-clock-size', size + 'px');
+}
+
+function startClock() {
+  stopClock(); // ✅ сначала гасим старое, иначе ты сам убивал ResizeObserver
+
+  var tile = element.querySelector('#widget-clock');
+  if (!tile) return;
+
+  var timeEl = tile.querySelector('.dash-clock-time');
+  var dateEl = tile.querySelector('.dash-clock-date');
+  if (!timeEl) return;
+
+  function tick() {
+    var now = new Date();
+    var hh = pad(now.getHours()), mm = pad(now.getMinutes()), ss = pad(now.getSeconds());
+    var dd = pad(now.getDate()), mon = pad(now.getMonth() + 1), yyyy = now.getFullYear();
+
+    timeEl.innerHTML = hh + ':' + mm + '<span class="dash-clock-sec">:' + ss + '</span>';
+    if (dateEl) dateEl.textContent = dd + '.' + mon + '.' + yyyy;
+  }
+
+  tick();
+
+  // после того как текст проставили — подгоняем размер
+  clockRAF = requestAnimationFrame(function () {
+    fitClock();
+  });
+
+  if (window.ResizeObserver) {
+    clockRO = new ResizeObserver(function () {
+      if (clockRAF) cancelAnimationFrame(clockRAF);
+      clockRAF = requestAnimationFrame(fitClock);
+    });
+    clockRO.observe(tile.querySelector('.dash-body') || tile);
+  }
+
+  clockTimer = setInterval(tick, 1000);
+}
+
+function stopClock() {
+  if (clockTimer) { clearInterval(clockTimer); clockTimer = null; }
+  if (clockRO) { clockRO.disconnect(); clockRO = null; }
+  if (clockRAF) { cancelAnimationFrame(clockRAF); clockRAF = 0; }
+}
+
+
+
   function startClock() {
-    var el = element.querySelector('#widget-clock .dash-clock');
-    if (!el) return;
+    var tile = element.querySelector('#widget-clock');
+    if (!tile) return;
+
+    var timeEl = tile.querySelector('.dash-clock-time');
+    var dateEl = tile.querySelector('.dash-clock-date');
+
+    fitClock();
+
+    if (window.ResizeObserver) {
+      if (clockRO) clockRO.disconnect();
+      clockRO = new ResizeObserver(function () { fitClock(); });
+      clockRO.observe(tile);
+    }
 
     function tick() {
       var now = new Date();
-      el.textContent = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+      var hh = pad(now.getHours()), mm = pad(now.getMinutes()), ss = pad(now.getSeconds());
+      var dd = pad(now.getDate()), mon = pad(now.getMonth() + 1), yyyy = now.getFullYear();
+
+      if (timeEl) {
+        timeEl.innerHTML = hh + ':' + mm + '<span class="dash-clock-sec">:' + ss + '</span>';
+      }
+      if (dateEl) {
+        dateEl.textContent = dd + '.' + mon + '.' + yyyy;
+      }
     }
 
     tick();
-    stopClock();
+    stopClock(); // остановить старый таймер, если был
     clockTimer = setInterval(tick, 1000);
   }
 
   function stopClock() {
     if (clockTimer) { clearInterval(clockTimer); clockTimer = null; }
+    if (clockRO) { clockRO.disconnect(); clockRO = null; }
   }
 
   // ===== calendar + notes =====
   var cal = { sc: null, $c: null, selectedIso: null };
-
-  function resetCalendarState() {
-    cal.sc = null;
-    cal.$c = null;
-    cal.selectedIso = null;
-  }
-function injectPickerStylesOnce() {
-  if (document.getElementById('dash-picker-styles')) return;
-
-  var css = [
-    '.dash-picker-backdrop{display:none;align-items:center;justify-content:center;',
-    '  position:fixed;left:0;top:0;right:0;bottom:0;',
-    '  background:rgba(0,0,0,.40);z-index:99999;',
-    '}',
-
-    '.dash-picker{width:min(720px,92vw);background:#fff;border-radius:14px;overflow:hidden;',
-    '  box-shadow:0 12px 40px rgba(0,0,0,.25);',
-    '}',
-
-    '.dash-picker-head{display:flex;align-items:center;justify-content:space-between;gap:10px;',
-    '  padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.08);background:#fafafa;',
-    '}',
-    '.dash-picker-title{font-weight:800;font-size:16px;}',
-    '.dash-picker-close{border:none;background:transparent;cursor:pointer;width:34px;height:34px;',
-    '  border-radius:10px;font-size:16px;',
-    '}',
-    '.dash-picker-close:hover{background:rgba(0,0,0,.06);}',
-
-    '.dash-picker-grid{display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:10px;padding:12px;}',
-    '@media (min-width:760px){.dash-picker-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}',
-
-    '.dash-widget-card{display:flex;flex-direction:column;gap:10px;',
-    '  border:1px solid rgba(0,0,0,.10);border-radius:12px;padding:12px;cursor:pointer;background:#fff;',
-    '}',
-
-    '.dash-widget-card:hover{background:#fafafa;}',
-    '.dash-widget-icon{font-size:28px;}',
-    '.dash-widget-title{font-weight:800;}',
-    '.dash-widget-desc{color:#6f6f6f;font-size:13px;margin-top:2px;}',
-    '.dash-widget-action{margin-top:auto;font-weight:800;color:#333;',
-    '  padding:8px 10px;border-radius:10px;border:1px solid rgba(0,0,0,.12);text-align:center;',
-    '}',
-
-    '.dash-widget-card:hover .dash-widget-action{background:#f6f6f6;}',
-
-    '.dash-widget-card.is-disabled{opacity:.45;cursor:not-allowed;}',
-    '.dash-widget-card.is-disabled:hover{background:#fff;}',
-    '.dash-widget-card.is-disabled .dash-widget-action{background:#fff;}',
-
-    'body.dash-picker-open{overflow:hidden;}'
-  ].join('\n');
-
-  var st = document.createElement('style');
-  st.id = 'dash-picker-styles';
-  st.type = 'text/css';
-  st.appendChild(document.createTextNode(css));
-  document.head.appendChild(st);
-}
+  function resetCalendarState() { cal.sc = null; cal.$c = null; cal.selectedIso = null; }
 
   function renderCalendarDetails(iso, events) {
     var $ = $jq();
@@ -489,7 +621,6 @@ function injectPickerStylesOnce() {
         cal.selectedIso = iso;
 
         renderCalendarDetails(iso, events || []);
-
         if (widgetExists('widget-notes')) requestDayNotes(iso);
       }
     });
@@ -517,6 +648,45 @@ function injectPickerStylesOnce() {
     tile.querySelector('.dash-notes-list').innerHTML = '<div class="dash-muted">Загрузка...</div>';
 
     if (connector.requestNotesForDay) connector.requestNotesForDay(iso);
+  }
+
+  // ===== NEWS =====
+  function initNewsWidget() {
+    var tile = element.querySelector('#widget-news');
+    if (!tile) return;
+
+    var btn = tile.querySelector('.dash-news-refresh');
+    btn && btn.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      tile.querySelector('.dash-news-list').innerHTML = '<div class="dash-muted">Загрузка...</div>';
+      if (connector.requestNews) connector.requestNews();
+    });
+
+    tile.querySelector('.dash-news-list').innerHTML = '<div class="dash-muted">Загрузка...</div>';
+    if (connector.requestNews) connector.requestNews();
+    else tile.querySelector('.dash-news-list').innerHTML = '<div class="dash-muted">requestNews не реализован в Java</div>';
+  }
+
+  // ===== RECENT =====
+  function initRecentWidget() {
+    var tile = element.querySelector('#widget-recent');
+    if (!tile) return;
+
+    var list = tile.querySelector('.dash-recent-list');
+    var btn = tile.querySelector('.dash-recent-refresh');
+
+    function load() {
+      list.innerHTML = '<div class="dash-muted">Загрузка...</div>';
+      if (connector.requestRecentDocs) connector.requestRecentDocs(10);
+      else list.innerHTML = '<div class="dash-muted">requestRecentDocs не реализован в Java</div>';
+    }
+
+    btn && btn.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      load();
+    });
+
+    load();
   }
 
   // ===== RPC from Java =====
@@ -583,6 +753,104 @@ function injectPickerStylesOnce() {
     connector.refreshAfterNoteChange(String(iso || ''));
   };
 
+  // NEWS: Java -> JS
+  connector.applyNews = function (json) {
+    var tile = element.querySelector('#widget-news');
+    if (!tile) return;
+
+    var list = tile.querySelector('.dash-news-list');
+    var arr = [];
+    try { arr = JSON.parse(json || '[]'); } catch (e) { arr = []; }
+
+    if (!arr.length) {
+      list.innerHTML = '<div class="dash-muted">Нет новостей</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    arr.forEach(function (n) {
+      var row = document.createElement('div');
+      row.className = 'dash-news-row';
+
+      var t = document.createElement('div');
+      t.className = 'dash-news-title';
+      t.textContent = n.title || '';
+      row.appendChild(t);
+
+      if (n.shortText) {
+        var st = document.createElement('div');
+        st.className = 'dash-news-short';
+        st.textContent = n.shortText;
+        row.appendChild(st);
+      }
+
+      row.addEventListener('click', function () {
+        if (n.id && connector.openNews) connector.openNews(String(n.id));
+      });
+
+      list.appendChild(row);
+    });
+  };
+
+  // RECENT: Java -> JS
+  connector.applyRecentDocs = function (json) {
+    var tile = element.querySelector('#widget-recent');
+    if (!tile) return;
+
+    var list = tile.querySelector('.dash-recent-list');
+    var arr = [];
+    try { arr = JSON.parse(json || '[]'); } catch (e) { arr = []; }
+
+    if (!arr.length) {
+      list.innerHTML = '<div class="dash-muted">Пока пусто</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    arr.forEach(function (it) {
+      var row = document.createElement('div');
+      row.className = 'dash-recent-row';
+
+      var ico = '📄';
+      if (it.entityName === 'untitled16_Notes') ico = '📝';
+      if (it.entityName === 'untitled16_News')  ico = '📰';
+
+      var left = document.createElement('div');
+      left.className = 'dash-recent-ico';
+      left.textContent = ico;
+
+      var main = document.createElement('div');
+      main.className = 'dash-recent-main';
+
+      var cap = document.createElement('div');
+      cap.className = 'dash-recent-cap';
+      cap.textContent = it.caption || 'Новая запись';
+
+      var meta = document.createElement('div');
+      meta.className = 'dash-recent-meta';
+      var dt = it.visitedTs ? new Date(it.visitedTs) : null;
+      meta.textContent = (it.entityName || '') + (dt ? (' • ' + dt.toLocaleString()) : '');
+
+      main.appendChild(cap);
+      main.appendChild(meta);
+
+      row.appendChild(left);
+      row.appendChild(main);
+
+      row.addEventListener('click', function () {
+        if (connector.openRecentDoc && it.entityName && it.entityId) {
+          connector.openRecentDoc(String(it.entityName), String(it.entityId));
+        }
+      });
+
+      list.appendChild(row);
+    });
+  };
+
+  connector.addWidgetById = function (id) {
+    addWidget(String(id || ''), defaultRectById(String(id || '')), false);
+  };
+
   // ===== init =====
   connector.initDashboard = function () {
     var tries = 0;
@@ -593,6 +861,7 @@ function injectPickerStylesOnce() {
         return;
       }
 
+      injectPickerStylesOnce();
       setRootHtmlOnce();
 
       var $ = $jq();
@@ -608,21 +877,42 @@ function injectPickerStylesOnce() {
           draggable: { handle: '.widget-drag-handle' }
         }, $grid[0]);
 
-        $grid.on('dragstop.gsSave resizestop.gsSave', function () {
-          saveLayout();
-        });
+        if (typeof grid.on === 'function') {
+          grid.on('change', function () { saveLayout(); });
+        }
+
+        $grid.off('.gsSave');
+        $grid.on('dragstop.gsSave resizestop.gsSave', function () { saveLayout(); });
       }
 
       var ok = restoreLayout();
-      if (!ok) {
+      var hasAny = element.querySelectorAll('.grid-stack-item[id^="widget-"]').length > 0;
+
+      if (!ok || !hasAny) {
         addWidget('widget-manager', defaultRectById('widget-manager'), true);
         addWidget('widget-clock', defaultRectById('widget-clock'), true);
         addWidget('widget-calendar', defaultRectById('widget-calendar'), true);
         addWidget('widget-notes', defaultRectById('widget-notes'), true);
+        addWidget('widget-news', defaultRectById('widget-news'), true);
+        addWidget('widget-recent', defaultRectById('widget-recent'), true);
         saveLayout();
       }
     })();
   };
+
+  var _dashStarted = false;
+
+  this.onStateChange = function () {
+    if (_dashStarted) return;
+    _dashStarted = true;
+    if (connector.initDashboard) connector.initDashboard();
+  };
+
+  setTimeout(function () {
+    if (_dashStarted) return;
+    _dashStarted = true;
+    if (connector.initDashboard) connector.initDashboard();
+  }, 0);
 
   this.onUnregister = function () {
     stopClock();
