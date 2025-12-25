@@ -6,13 +6,17 @@ import com.company.untitled16.service.RecentDocsService;
 import com.google.gson.Gson;
 import com.haulmont.bali.util.ParamsMap;
 import com.haulmont.cuba.core.global.DataManager;
+import com.haulmont.cuba.core.global.Events;
 import com.haulmont.cuba.core.global.View;
 import com.haulmont.cuba.gui.Dialogs;
+import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.ScreenBuilders;
 import com.haulmont.cuba.gui.components.DialogAction;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.web.gui.components.JavaScriptComponent;
+import events.DashboardInvalidateEvent;
 import org.jsoup.Jsoup;
+import org.springframework.context.event.EventListener;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
@@ -23,12 +27,20 @@ import java.util.*;
 public class DashboardScreenNotes extends Screen {
 
 
-
-    @Inject private JavaScriptComponent gridJs;
-    @Inject private DataManager dataManager;
-    @Inject private ScreenBuilders screenBuilders;
-    @Inject private Dialogs dialogs;
-    @Inject private RecentDocsService recentDocService;
+    @Inject
+    private JavaScriptComponent gridJs;
+    @Inject
+    private DataManager dataManager;
+    @Inject
+    private ScreenBuilders screenBuilders;
+    @Inject
+    private Dialogs dialogs;
+    @Inject
+    private RecentDocsService recentDocService;
+    @Inject
+    private Events events;
+    @Inject
+    private Notifications notifications;
 
     private final Gson gson = new Gson();
 
@@ -55,6 +67,7 @@ public class DashboardScreenNotes extends Screen {
 
         gridJs.callFunction("applyRecentDocs", gson.toJson(items));
     }
+
     private void handleMissingRecent(String entityName, UUID id, String caption) {
         dialogs.createMessageDialog()
                 .withCaption("Недоступно")
@@ -76,7 +89,8 @@ public class DashboardScreenNotes extends Screen {
                 if (cb.getArguments() != null && cb.getArguments().length() > 0) {
                     limit = (int) cb.getArguments().getNumber(0);
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
             sendRecentToJs(limit);
         });
 
@@ -139,6 +153,13 @@ public class DashboardScreenNotes extends Screen {
                     .withMessage("Не знаю как открыть: " + entityName)
                     .show();
         });
+
+
+        gridJs.addFunction("sendTestGlobalEvent", cb -> {
+            String msg = cb.getArguments().getString(0);
+            events.publish(new DashboardInvalidateEvent(this, msg));
+        });
+
 
         // ===== NEWS: запросить список новостей
         gridJs.addFunction("requestNews", cb -> {
@@ -323,6 +344,14 @@ public class DashboardScreenNotes extends Screen {
                     )
                     .show();
         });
+    }
+
+
+    @EventListener
+    public void onDashboardChanged(DashboardInvalidateEvent e){
+        notifications.create(Notifications.NotificationType.TRAY).withCaption("GlobalEvent")
+                .withDescription(e.getMessage()).show();
+
     }
 
     @Subscribe

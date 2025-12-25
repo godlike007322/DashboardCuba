@@ -41,7 +41,7 @@
   .widget-flex {
     display: flex;
     flex-direction: column;
-    height: 100%;
+
     min-height: 0;
   }
 
@@ -408,8 +408,7 @@ body.dash-picker-open .dash-picker-backdrop { pointer-events: auto !important; }
    .grid-stack-item-content.widget-flex {
       display: flex;
       flex-direction: column;
-      height: 100%;
-      width: 100%;
+
       box-sizing: border-box;
 
       padding: 12px;
@@ -426,10 +425,373 @@ body.dash-picker-open .dash-picker-backdrop { pointer-events: auto !important; }
       margin-bottom: 8px;
       cursor: move; // если хочешь тянуть за шапку
     }
+/* =========================
+   TEZIS SKIN OVERRIDES
+   (вставить В КОНЕЦ mixin)
+   ========================= */
+
+.tezis-skin {
+  /* палитра/токены */
+  --t-bg: #EEF3F8;          /* фон рабочего стола */
+  --t-card: #FFFFFF;        /* карточки */
+  --t-border: #D9E2EC;      /* рамки */
+  --t-divider: #E6EDF5;     /* разделители */
+  --t-text: #1F2D3D;
+  --t-muted: #6B778C;
+
+  --t-primary: #2A73C8;     /* ссылки/акценты */
+  --t-hover: #F4F7FB;       /* hover */
+  --t-row-hover: #EAF3FF;   /* hover строк */
+
+  --t-radius: 6px;
+  --t-radius-sm: 4px;
+
+  --t-shadow: 0 8px 18px rgba(31,45,61,.12);
+  --t-shadow-menu: 0 10px 22px rgba(31,45,61,.18);
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: var(--t-text);
+}
+
+/* фон рабочей области */
+.tezis-skin.dash-root,
+.tezis-skin .dash-root,
+.tezis-skin .dash-grid {
+  background: var(--t-bg) !important;
+}
+
+/* базовая карточка плитки */
+.tezis-skin .grid-stack-item-content {
+  border: 1px solid var(--t-border) !important;
+  border-radius: var(--t-radius) !important;
+  background: var(--t-card) !important;
+  box-shadow: var(--t-shadow) !important;
+  overflow: hidden !important;
+}
+
+/* у тебя где-то есть .grid-stack-item-content.widget-flex { padding: 12px; } — убираем */
+.tezis-skin .grid-stack-item-content.widget-flex {
+  padding: 0 !important;
+  box-sizing: border-box;
+}
+
+/* ===== header (dash-handle) как у ТЕЗИС: белый, тонкая линия, без серого бэкграунда ===== */
+.tezis-skin .dash-handle {
+  padding: 10px 14px !important;
+  background: var(--t-card) !important;
+  border-bottom: 1px solid var(--t-divider) !important;
+  cursor: move;
+
+  /* аккуратнее типографика */
+  font-weight: 600;
+}
+
+.tezis-skin .dash-title {
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  color: var(--t-text) !important;
+}
+
+/* крестик убрать виджет — как иконка */
+.tezis-skin .dash-remove {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--t-radius-sm);
+  opacity: 0.75 !important;
+}
+.tezis-skin .dash-remove:hover {
+  background: var(--t-hover) !important;
+  opacity: 1 !important;
+}
+
+/* тело виджета */
+.tezis-skin .dash-body {
+  background: var(--t-card);
+}
+
+/* ===== кнопки: плоские, спокойные (как у ТЕЗИС) ===== */
+.tezis-skin .dash-btn,
+.tezis-skin .sc-create-note,
+.tezis-skin .dash-picker-close {
+  border: 1px solid var(--t-border) !important;
+  background: var(--t-card) !important;
+  color: var(--t-text) !important;
+  border-radius: var(--t-radius) !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.tezis-skin .dash-btn:hover,
+.tezis-skin .sc-create-note:hover,
+.tezis-skin .dash-picker-close:hover {
+  background: var(--t-hover) !important;
+}
+
+.tezis-skin .dash-btn:focus-visible,
+.tezis-skin .sc-create-note:focus-visible,
+.tezis-skin .dash-picker-close:focus-visible {
+  outline: 2px solid rgba(42,115,200,.35);
+  outline-offset: 2px;
+}
+
+/* если хочешь “главную” кнопку в панели — добавь класс в HTML: dash-btn--primary */
+.tezis-skin .dash-btn--primary {
+  background: rgba(42,115,200,.10) !important;
+  border-color: rgba(42,115,200,.35) !important;
+  color: var(--t-primary) !important;
+}
+
+/* ===== списки: тонкие разделители, hover голубой ===== */
+.tezis-skin .dash-news-row,
+.tezis-skin .dash-recent-row,
+.tezis-skin .dash-note-row,
+.tezis-skin .sc-note-row {
+  padding: 10px 14px !important;
+  border-bottom: 1px solid var(--t-divider) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.tezis-skin .dash-news-row:hover,
+.tezis-skin .dash-recent-row:hover,
+.tezis-skin .dash-note-row:hover,
+.tezis-skin .sc-note-row:hover {
+  background: var(--t-row-hover) !important;
+}
+
+/* заголовки/мета */
+.tezis-skin .dash-news-title,
+.tezis-skin .dash-recent-cap {
+  font-weight: 600 !important;
+  font-size: 13px !important;
+}
+
+.tezis-skin .dash-news-short,
+.tezis-skin .dash-recent-meta,
+.tezis-skin .dash-notes-date,
+.tezis-skin .dash-muted,
+.tezis-skin .sc-empty {
+  color: var(--t-muted) !important;
+  opacity: 1 !important;
+}
+
+/* ===== delete-кнопки: не “кроваво-красные”, а аккуратные, как в офисных СЭД ===== */
+.tezis-skin .dash-note-del,
+.tezis-skin .sc-note-del {
+  border-radius: var(--t-radius) !important;
+  border: 1px solid rgba(199, 7, 7, .35) !important;
+  background: transparent !important;
+  color: rgba(199, 7, 7, .95) !important;
+  font-weight: 600 !important;
+}
+
+.tezis-skin .dash-note-del:hover,
+.tezis-skin .sc-note-del:hover {
+  background: rgba(199, 7, 7, .06) !important;
+}
+
+/* ===== контекстное меню ПКМ: белое, тонкая рамка, мягкая тень ===== */
+.tezis-skin .dash-ctx {
+  border: 1px solid var(--t-border) !important;
+  border-radius: var(--t-radius) !important;
+  box-shadow: var(--t-shadow-menu) !important;
+  background: var(--t-card) !important;
+}
+
+.tezis-skin .dash-ctx-item {
+  border-radius: var(--t-radius-sm) !important;
+  font-weight: 600 !important;
+}
+.tezis-skin .dash-ctx-item:hover {
+  background: var(--t-hover) !important;
+}
+.tezis-skin .dash-ctx-sep {
+  background: var(--t-divider) !important;
+}
+
+/* ===== пикер (модалка добавления виджетов): максимально “тезисно” ===== */
+.tezis-skin .dash-picker-backdrop {
+  background: rgba(31,45,61,.35) !important;
+}
+
+.tezis-skin .dash-picker {
+  border-radius: 10px !important;
+  border: 1px solid var(--t-border) !important;
+  background: var(--t-card) !important;
+  box-shadow: var(--t-shadow-menu) !important;
+  padding: 12px !important;
+}
+
+.tezis-skin .dash-picker-head {
+  background: #F7F9FC !important;
+  border-bottom: 1px solid var(--t-divider) !important;
+  padding: 10px 12px !important;
+  margin-bottom: 10px !important;
+}
+
+.tezis-skin .dash-widget-card {
+  border: 1px solid var(--t-border) !important;
+  border-radius: 10px !important;
+  background: var(--t-card) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.tezis-skin .dash-widget-card:hover {
+  background: var(--t-hover) !important;
+  box-shadow: none !important;
+}
+
+.tezis-skin .dash-widget-action {
+  border: 1px solid rgba(42,115,200,.25) !important;
+  background: rgba(42,115,200,.10) !important;
+  color: var(--t-primary) !important;
+}
+
+/* ===== опционально: отключить картинку-фон (в ТЕЗИС обычно спокойный однотон) ===== */
+.tezis-skin .dashboard-background {
+  background: var(--t-bg) !important;
+}
 
     .grid-stack-item-content.widget-flex .widget-body {
       flex: 1 1 auto;
       min-height: 0;
       overflow: auto;
     }
+    /* FIX GridStack vertical gap (height:100% ломает bottom/inset) */
+    .tezis-skin .grid-stack-item-content.widget-flex,
+    .tezis-skin .widget-flex {
+      height: auto !important;  /* или height: unset !important; */
+      width: auto !important;   /* на всякий */
+    }
+
+    /* TEZIS: black text, blue links, white UI */
+    .tezis-skin {
+      --t-text: #1F2D3D;        /* чёрный/тёмно-синий текст */
+      --t-muted: #6B778C;       /* серые подписи */
+      --t-primary: #2A73C8;     /* “тезисный” синий */
+      --t-primary-hover: #1F5FAF;
+    }
+
+
+
+/* Любая обычная ссылка внутри дашборда */
+.tezis-skin a,
+.tezis-skin a:visited {
+  color: var(--t-primary) !important;
+  text-decoration: none;
+}
+.tezis-skin a:hover {
+  color: var(--t-primary-hover) !important;
+  text-decoration: underline;
+}
+
+/* Заголовки строк в списках — делаем “как ссылка”, даже если это div */
+.tezis-skin .dash-news-title,
+.tezis-skin .dash-recent-cap,
+.tezis-skin .dash-note-text,
+.tezis-skin .sc-note-summary {
+  color: var(--t-primary) !important;
+}
+
+.tezis-skin .dash-news-row:hover .dash-news-title,
+.tezis-skin .dash-recent-row:hover .dash-recent-cap,
+.tezis-skin .dash-note-row:hover .dash-note-text,
+.tezis-skin .sc-note-row:hover .sc-note-summary {
+  color: var(--t-primary-hover) !important;
+  text-decoration: underline;
+}
+
+
+/* Обычный текст (описания, мета) */
+.tezis-skin .dash-news-short,
+.tezis-skin .dash-recent-meta,
+.tezis-skin .dash-muted,
+.tezis-skin .dash-notes-date,
+.tezis-skin .dash-title {
+  color: var(--t-text) !important;
+}
+
+.tezis-skin .dash-news-short,
+.tezis-skin .dash-recent-meta,
+.tezis-skin .dash-muted,
+.tezis-skin .dash-notes-date,
+.tezis-skin .sc-empty {
+  color: var(--t-muted) !important;
+}
+
+
+
+/* обычные кнопки — белые */
+.tezis-skin .dash-btn {
+  background: #fff !important;
+  border: 1px solid #D9E2EC !important;
+  color: var(--t-text) !important;
+}
+
+/* если хочешь “главную” — добавь класс dash-btn--primary в HTML */
+.tezis-skin .dash-btn--primary {
+  color: var(--t-primary) !important;
+  border-color: rgba(42,115,200,.35) !important;
+  background: rgba(42,115,200,.10) !important;
+}
+
+/* TEZIS: лаконичное контекст-меню (ПКМ) */
+.tezis-skin .dash-ctx {
+  padding: 4px !important;
+  min-width: 200px !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--t-border) !important;
+  background: #fff !important;
+  box-shadow: var(--t-shadow-menu) !important;
+}
+
+.tezis-skin .dash-ctx-item {
+  padding: 8px 10px !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;   /* вместо 800 */
+  color: var(--t-text) !important;
+  user-select: none;
+}
+
+.tezis-skin .dash-ctx-item:hover {
+  background: var(--t-hover) !important;
+}
+
+.tezis-skin .dash-ctx-sep {
+  height: 1px !important;
+  background: var(--t-divider) !important;
+  margin: 4px 6px !important;
+}
+
+
+/* TEZIS: пункты контекст-меню синие */
+.tezis-skin .dash-ctx-item {
+  color: var(--t-primary) !important;  /* голубенькие */
+  font-weight: 500 !important;
+}
+
+.tezis-skin .dash-ctx-item:hover {
+  color: var(--t-primary-hover) !important;
+  background: var(--t-hover) !important;
+  text-decoration: underline;          /* если хочешь прям как “ссылка” */
+}
+
+.tezis-skin .dash-ctx-item:active {
+  text-decoration: none;
+}
+
+/* TEZIS: синие пункты контекст-меню */
+.tezis-skin .dash-ctx-item{
+  color: var(--t-primary) !important;
+  font-weight: 500 !important;
+}
+.tezis-skin .dash-ctx-item:hover{
+  color: var(--t-primary-hover) !important;
+  background: var(--t-hover) !important;
+  text-decoration: underline;
+}
+
+
 }
