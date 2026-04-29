@@ -14,10 +14,9 @@ public class GridDashboardScreen extends Screen {
 
     @Inject
     private JavaScriptComponent gridDashboard;
+
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
         gridDashboard.callFunction("initGrid");
     }
-    
-    
 }
