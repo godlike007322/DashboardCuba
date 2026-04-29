@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
-    
+
     <!-- Application properties config files -->
     <context-param>
         <param-name>appPropertiesConfig</param-name>
@@ -16,7 +16,8 @@
     <!--Application components-->
     <context-param>
         <param-name>appComponents</param-name>
-        <param-value>com.haulmont.cuba com.haulmont.addon.dashboard</param-value>
+        <param-value>com.haulmont.cuba com.haulmont.addon.dashboard com.haulmont.reports com.haulmont.addon.globalevents
+            com.haulmont.addon.helium</param-value>
     </context-param>
     <listener>
         <listener-class>com.vaadin.server.communication.JSR356WebsocketInitializer</listener-class>

@@ -1,5 +1,6 @@
 package com.company.untitled16.web.screens.notes;
 
+import com.company.untitled16.service.RecentDocsService;
 import com.haulmont.cuba.gui.components.DateField;
 import com.haulmont.cuba.gui.screen.*;
 import com.company.untitled16.entity.Notes;
@@ -17,6 +18,9 @@ public class NotesEdit extends StandardEditor<Notes> {
     private LocalDate fixedDate;
     @Inject
     private DateField<LocalDate> noteDate;
+    @Inject
+    private RecentDocsService recentDocsService;
+
 
     @Subscribe
     public void onInit(InitEvent event) {
@@ -32,7 +36,7 @@ public class NotesEdit extends StandardEditor<Notes> {
             if (d instanceof LocalDate) fixedDate = (LocalDate) d;
             else if (d instanceof String) fixedDate = LocalDate.parse((String) d);
         }
-        
+
     }
 
     @Subscribe
@@ -41,9 +45,14 @@ public class NotesEdit extends StandardEditor<Notes> {
         noteDate.setEditable(editable);
         noteDate.setEnabled(editable); // можно оставить только enabled или только editable
     }
-    
-    
-    
-    
-    
+
+    @Subscribe
+    public void onAfterShow(AfterShowEvent event) {
+        Notes n = getEditedEntity();
+        if (n != null && n.getId() != null) {
+            recentDocsService.register("untitled16_Notes", n.getId(), n.getText() != null ? n.getText() : "");
+        }
+    }
+
+
 }

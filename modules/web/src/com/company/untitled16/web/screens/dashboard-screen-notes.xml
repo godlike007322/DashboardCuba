@@ -3,9 +3,9 @@
         caption="msg://dashboardScreenNotes.caption"
         messagesPack="com.company.untitled16.web.screens">
     <layout stylename="dashboard-background">
-        <cssLayout id="gridRoot"
-                   width="100%"
-                   height="100%"/>
+        <!--        <cssLayout id="gridRoot"-->
+        <!--                   width="100%"-->
+        <!--                   height="100%"/>-->
 
         <jsComponent id="gridJs"
                      width="100%"
@@ -17,7 +17,11 @@
                 <dependency path="vaadin://grid/gridstack.min.css"/>
                 <dependency path="vaadin://simple-calendar/jquery.simple-calendar.js"/>
                 <dependency path="vaadin://simple-calendar/simple-calendar.css"/>
-                <dependency path="vaadin://grid/dashboard-notes-connector58.js"/>
+                <dependency path="vaadin://grid/dashboard-notes-connector108.js"/>
+                <dependency path="vaadin://pell/pell.min.js"/>
+                <dependency path="vaadin://pell/pell.min.css"/>
+                <dependency path="vaadin://quill/quill.js"/>
+                <dependency path="vaadin://quill/quill.snow.css"/>
             </dependencies>
         </jsComponent>
     </layout>

@@ -1,244 +1,797 @@
-    /* Define your theme modifications inside next mixin */
-    @mixin com_company_untitled16-halo-ext {
-      .grid-stack-item-content {
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background-color: #ffffff;
-        box-shadow: 0 0 8px rgba(0,0,0,0.08);
-        overflow: hidden;
-      }
+/* Define your theme modifications inside next mixin */
+@mixin com_company_untitled16-halo-ext {
 
-      .clock-widget-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: "Open Sans", sans-serif;
-        font-weight: bold;
+  /* ===== общий вид плиток ===== */
+  .grid-stack-item-content {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #ffffff;
+    box-shadow: 0 0 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
 
-        padding: 0;           // чтобы не съедать место
-        margin: 0;
+  .grid-stack {
+    width: 100%;
+    height: 100%;
+  }
 
-        white-space: nowrap;  // НЕ переносить "12:34:56" на две строки
-        overflow: hidden;     // если что-то пойдёт за край – обрежет
-      }
+  /* Восстанавливаем подписи у Vaadin-кнопок (если где-то ещё используются) */
+  .grid-stack-item-content .v-button-caption {
+    display: inline-block !important;
+    font-size: 13px !important;
+    color: #333 !important;
+  }
 
-      /* Восстанавливаем подписи у кнопок внутри наших виджетов */
-      .grid-stack-item-content .v-button-caption {
-        display: inline-block !important;
-        font-size: 13px !important;
-        color: #333 !important;
-      }
+  .grid-stack.grid-stack-static .grid-stack-item,
+  .grid-stack.grid-stack-static .grid-stack-item .grid-stack-item-content {
+    pointer-events: auto;
+  }
 
-      .grid-stack.grid-stack-static .grid-stack-item,
-      .grid-stack.grid-stack-static .grid-stack-item .grid-stack-item-content {
-          pointer-events: auto;
-      }
+  /* ===== НОВЫЙ HTML-ДАШБОРД (dash-*) ===== */
+  .dash-root {
+    width: 100%;
+    height: 100%;
+  }
 
-    // ===== НОВОСТИ (карточки) =====
+  .dash-grid {
+    width: 100%;
+    height: 100%;
+  }
 
-    .news-widget-header {
-      background-color: rgba(224, 224, 224, 0.85);
-      padding: 8px 10px;
-      font-weight: 700;
-      border-bottom: 1px solid rgba(0,0,0,0.12);
-    }
+  .widget-flex {
+    display: flex;
+    flex-direction: column;
 
-    /* контейнер списка новостей (если у тебя общий layout вокруг карточек) */
-    .news-widget-container {
-      padding: 8px;
-    }
+    min-height: 0;
+  }
 
-    /* карточка */
-    .news-card {
-      padding: 10px 12px;
-      max-width:95%;
-      margin: 8px 8px;
-      border-radius: 10px;
+  .widget-flex > .dash-body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
 
-      background: rgba(255,255,255,0.88);
-      border: 1px solid rgba(0,0,0,0.10);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  .dash-handle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
 
-      cursor: pointer;              // ← “палец”
-      transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
-    }
+    padding: 6px 10px;
+    background: rgba(0,0,0,0.08);
+    border-bottom: 1px solid rgba(0,0,0,0.18);
+    cursor: move;
+  }
 
-    /* hover эффект */
-    .news-card:hover {
-      background: rgba(255,255,255,0.96);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-      transform: translateY(-1px);
-    }
+  .dash-title {
+    font-weight: 700;
+    font-size: 13px;
+  }
 
-    /* чтобы при клике было приятно */
-    .news-card:active {
-      transform: translateY(0px);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    }
+  .dash-remove {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 700;
+    opacity: 0.7;
+  }
+  .dash-remove:hover { opacity: 1; }
 
-    /* убираем старый “разделитель снизу”, он больше не нужен */
-    .news-card:last-child {
-      border-bottom: none;
-    }
+  .dash-panel { padding: 10px; display: grid; gap: 8px; }
 
-    /* заголовок + дата в одну строку (если помещается) */
-    .news-title {
-      font-weight: 700;
+  .dash-btn {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.18);
+    background: rgba(255,255,255,0.88);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .dash-btn:hover { background: rgba(255,255,255,0.96); }
+
+  .dash-menu {
+    margin-top: 6px;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .dash-menu-item {
+    padding: 10px 10px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.9);
+  }
+  .dash-menu-item:hover { background: rgba(0,0,0,0.04); }
+  .dash-menu-item.is-disabled { opacity: 0.4; pointer-events: none; }
+
+  .dash-muted { opacity: 0.65; padding: 8px 4px; }
+
+  .dash-notes-head {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+
+  .dash-notes-date {
+    font-weight: 700;
+    font-size: 12px;
+    opacity: 0.85;
+  }
+
+  .dash-note-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    cursor: pointer;
+  }
+  .dash-note-row:hover { background: rgba(0,0,0,0.03); }
+
+  .dash-note-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dash-note-del {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(200,0,0,0.85);
+    background: rgba(199,7,7,0.85);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .dash-note-del:hover { background: rgba(200,0,0,0.14); }
+  .dash-note-del:active { transform: translateY(1px); }
+
+  /* ===== CLOCK ===== */
+  .clock-widget-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Open Sans", sans-serif;
+    font-weight: bold;
+
+    padding: 0;
+    margin: 0;
+
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* ===== НОВОСТИ (оставил как было — не мешает) ===== */
+  .news-widget-header {
+    background-color: rgba(224, 224, 224, 0.85);
+    padding: 8px 10px;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
+  }
+
+  .news-widget-container { padding: 8px; }
+
+  .news-card {
+    padding: 10px 12px;
+    max-width: 95%;
+    margin: 8px 8px;
+    border-radius: 10px;
+
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(0,0,0,0.10);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+
+    cursor: pointer;
+    transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  }
+
+  .news-card:hover {
+    background: rgba(255,255,255,0.96);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    transform: translateY(-1px);
+  }
+
+  .news-card:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+
+  .news-title { font-weight: 700; font-size: 13px; margin-bottom: 4px; line-height: 1.2; }
+  .news-date { font-size: 11px; color: rgba(0,0,0,0.55); margin-bottom: 6px; }
+
+  .news-text {
+    font-size: 12px;
+    line-height: 1.35;
+    color: rgba(0,0,0,0.80);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+
+  .news-empty {
+    font-style: italic;
+    color: rgba(0,0,0,0.55);
+    padding: 8px 10px;
+  }
+
+  /* ===== старые handle-классы (не мешают, пусть будут) ===== */
+  .notes-drag-handle {
+    background: rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.18);
+    padding: 4px 8px;
+    cursor: move;
+
+    .v-label {
+      font-weight: bold;
       font-size: 13px;
-      margin-bottom: 4px;
-      line-height: 1.2;
     }
+  }
 
-    .news-date {
-      font-size: 11px;
-      color: rgba(0,0,0,0.55);
-      margin-bottom: 6px;
-    }
+  .widget-drag-handle { cursor: move; }
 
-    /* текст новости */
-    .news-text {
-      font-size: 12px;
-      line-height: 1.35;
-      color: rgba(0,0,0,0.80);
+  /* ===== КАЛЕНДАРЬ: кнопки/строки заметок ===== */
+  .sc-note-actions { margin: 8px 0 10px 0; }
 
-      /* чтобы длинный текст не ломал карточку */
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;        // покажет 3 строки и обрежет
-      -webkit-box-orient: vertical;
-    }
+  .sc-create-note {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.85);
+    background: rgba(89,130,223,0.84);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .sc-create-note:hover { background: rgba(0,0,0,0.06); }
+  .sc-create-note:active { transform: translateY(1px); }
 
-    .news-empty {
-      font-style: italic;
-      color: rgba(0,0,0,0.55);
-      padding: 8px 10px;
-    }
+  .sc-note-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 8px;
+    margin: 6px 0;
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.8);
+    cursor: pointer;
+  }
+  .sc-note-row:hover { background: rgba(0,0,0,0.03); }
+
+  .sc-note-summary {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sc-note-del {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(200,0,0,0.85);
+    background: rgba(199,7,7,0.85);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .sc-note-del:hover { background: rgba(200,0,0,0.14); }
+  .sc-note-del:active { transform: translateY(1px); }
+
+  .sc-empty { padding: 6px 0; opacity: 0.7; }
+
+  .calendar .event-container { z-index: 10; }
+
+  /* ✅ правильная блокировка фона при модалке (и НЕ ломает сам Vaadin-диалог) */
+  body.gs-modal-open .dash-root,
+  body.gs-modal-open .dash-root * {
+    pointer-events: none !important;
+  }
+  body.gs-modal-open .v-window,
+  body.gs-modal-open .v-window * {
+    pointer-events: auto !important;
+  }
+
+.dash-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  display: none; /* JS включает flex */
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.40);
+  z-index: 99999;
+}
+
+.dash-picker {
+  max-height: calc(100vh - 28px);
+  overflow: auto;
+  background: rgba(255,255,255,0.98);
+  border-radius: 16px;
+  box-shadow: 0 20px 70px rgba(0,0,0,0.28);
+  border: 1px solid rgba(0,0,0,0.10);
+  padding: 14px;
+}
+
+.dash-picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  margin-bottom: 12px;
+}
+
+.dash-picker-title { font-weight: 800; font-size: 15px; }
+
+.dash-picker-close {
+  border: 1px solid rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.9);
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.dash-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (min-width: 700px) {
+  .dash-picker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.dash-widget-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.10);
+  background: rgba(255,255,255,0.92);
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.dash-widget-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+}
+.dash-widget-card.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.dash-widget-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  background: rgba(0,0,0,0.06);
+  flex: 0 0 auto;
+}
+
+.dash-widget-info { min-width: 0; flex: 1; }
+.dash-widget-title { font-weight: 800; font-size: 13px; margin-bottom: 2px; }
+.dash-widget-desc { font-size: 12px; opacity: 0.75; }
+
+.dash-widget-action {
+  font-weight: 800;
+  font-size: 12px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.16);
+  background: rgba(89,130,223,0.18);
+  flex: 0 0 auto;
+}
+.dash-widget-card.is-disabled .dash-widget-action {
+  background: rgba(0,0,0,0.06);
+}
+
+/* пока открыт наш пикер — не даём гриду ловить клики */
+body.dash-picker-open .grid-stack { pointer-events: none !important; }
+body.dash-picker-open .dash-picker-backdrop { pointer-events: auto !important; }
 
 
-    .grid-stack {
-        width: 100%;
-        height: 100%;
-    }
-
-    .v-csslayout-grid-stack {
-        width: 350px;
-        height: 400px;
-    }
-    .notes-drag-handle {
-      background: rgba(0, 0, 0, 0.08);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.18);
-      padding: 4px 8px;
-      cursor: move;
-
-      .v-label {
-        font-weight: bold;
-        font-size: 13px;
-      }
-    }
-
-    .widget-drag-handle {
-      cursor: move;
-    }
-
-
-
-
-
-    /* ===== КАЛЕНДАРЬ: кнопки и строки заметок в окне ===== */
-
-    /* контейнер кнопки "Создать" */
-    .sc-note-actions {
-      margin: 8px 0 10px 0;
-    }
-
-    /* кнопка "+ Создать заметку" */
-    .sc-create-note {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 6px;
-      border: 1px solid rgba(0,0,0,0.85);
-      background: rgba(89,130,223,0.84);
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .sc-create-note:hover {
-      background: rgba(0,0,0,0.06);
-    }
-
-    .sc-create-note:active {
-      transform: translateY(1px);
-    }
-
-    /* строка заметки (summary + delete) */
-    .sc-note-row {
+  /* ===== фон ===== */
+  .dashboard-background {
+    background: url("dashSample.jpg") no-repeat center center fixed;
+    background-size: cover;
+  }
+   .grid-stack-item-content.widget-flex {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 8px;
-      margin: 6px 0;
-      border-radius: 6px;
-      border: 1px solid rgba(0,0,0,0.08);
-      background: rgba(255,255,255,0.8);
-      cursor: pointer;
+      flex-direction: column;
+
+      box-sizing: border-box;
+
+      padding: 12px;
+      border-radius: 8px;
+
+      /* если “карточки” выглядят плоско — можно добавить: */
+      /* box-shadow: 0 2px 10px rgba(0,0,0,.08); */
+      /* background: #fff; */
     }
 
-    .sc-note-row:hover {
-      background: rgba(0,0,0,0.03);
-    }
-
-    /* текст заметки */
-    .sc-note-summary {
-      flex: 1;
-      min-width: 0;              /* важно для переносов в flex */
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    /* кнопка "Удалить" */
-    .sc-note-del {
-      padding: 6px 10px;
-      border-radius: 6px;
-      border: 1px solid rgba(200,0,0,0.85);
-      background: rgba(199,7,7,0.85);
-      cursor: pointer;
+    .grid-stack-item-content.widget-flex .widget-header {
+      flex: 0 0 auto;
       font-weight: 600;
+      margin-bottom: 8px;
+      cursor: move; // если хочешь тянуть за шапку
     }
+/* =========================
+   TEZIS SKIN OVERRIDES
+   (вставить В КОНЕЦ mixin)
+   ========================= */
 
-    /* чтобы клик по "Удалить" не выглядел как выбор всей строки */
-    .sc-note-del:hover {
-      background: rgba(200,0,0,0.14);
-    }
+.tezis-skin {
+  /* палитра/токены */
+  --t-bg: #EEF3F8;          /* фон рабочего стола */
+  --t-card: #FFFFFF;        /* карточки */
+  --t-border: #D9E2EC;      /* рамки */
+  --t-divider: #E6EDF5;     /* разделители */
+  --t-text: #1F2D3D;
+  --t-muted: #6B778C;
 
-    .sc-note-del:active {
-      transform: translateY(1px);
-    }
+  --t-primary: #2A73C8;     /* ссылки/акценты */
+  --t-hover: #F4F7FB;       /* hover */
+  --t-row-hover: #EAF3FF;   /* hover строк */
 
-    /* "Нет заметок" */
-    .sc-empty {
-      padding: 6px 0;
-      opacity: 0.7;
-    }
+  --t-radius: 6px;
+  --t-radius-sm: 4px;
 
-/* Пока Vaadin-диалог открыт/закрывается — фон НЕ кликабелен */
-body.gs-modal-open .grid-stack,
-body.gs-modal-open .calendar-widget-container,
-body.gs-modal-open .simple-calendar {
-  pointer-events: none !important;
+  --t-shadow: 0 8px 18px rgba(31,45,61,.12);
+  --t-shadow-menu: 0 10px 22px rgba(31,45,61,.18);
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: var(--t-text);
 }
-.calendar .event-container {
-z-index:10;
 
+/* фон рабочей области */
+.tezis-skin.dash-root,
+.tezis-skin .dash-root,
+.tezis-skin .dash-grid {
+  background: var(--t-bg) !important;
+}
+
+/* базовая карточка плитки */
+.tezis-skin .grid-stack-item-content {
+  border: 1px solid var(--t-border) !important;
+  border-radius: var(--t-radius) !important;
+  background: var(--t-card) !important;
+  box-shadow: var(--t-shadow) !important;
+  overflow: hidden !important;
+}
+
+/* у тебя где-то есть .grid-stack-item-content.widget-flex { padding: 12px; } — убираем */
+.tezis-skin .grid-stack-item-content.widget-flex {
+  padding: 0 !important;
+  box-sizing: border-box;
+}
+
+/* ===== header (dash-handle) как у ТЕЗИС: белый, тонкая линия, без серого бэкграунда ===== */
+.tezis-skin .dash-handle {
+  padding: 10px 14px !important;
+  background: var(--t-card) !important;
+  border-bottom: 1px solid var(--t-divider) !important;
+  cursor: move;
+
+  /* аккуратнее типографика */
+  font-weight: 600;
+}
+
+.tezis-skin .dash-title {
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  color: var(--t-text) !important;
+}
+
+/* крестик убрать виджет — как иконка */
+.tezis-skin .dash-remove {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--t-radius-sm);
+  opacity: 0.75 !important;
+}
+.tezis-skin .dash-remove:hover {
+  background: var(--t-hover) !important;
+  opacity: 1 !important;
+}
+
+/* тело виджета */
+.tezis-skin .dash-body {
+  background: var(--t-card);
+}
+
+/* ===== кнопки: плоские, спокойные (как у ТЕЗИС) ===== */
+.tezis-skin .dash-btn,
+.tezis-skin .sc-create-note,
+.tezis-skin .dash-picker-close {
+  border: 1px solid var(--t-border) !important;
+  background: var(--t-card) !important;
+  color: var(--t-text) !important;
+  border-radius: var(--t-radius) !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.tezis-skin .dash-btn:hover,
+.tezis-skin .sc-create-note:hover,
+.tezis-skin .dash-picker-close:hover {
+  background: var(--t-hover) !important;
+}
+
+.tezis-skin .dash-btn:focus-visible,
+.tezis-skin .sc-create-note:focus-visible,
+.tezis-skin .dash-picker-close:focus-visible {
+  outline: 2px solid rgba(42,115,200,.35);
+  outline-offset: 2px;
+}
+
+/* если хочешь “главную” кнопку в панели — добавь класс в HTML: dash-btn--primary */
+.tezis-skin .dash-btn--primary {
+  background: rgba(42,115,200,.10) !important;
+  border-color: rgba(42,115,200,.35) !important;
+  color: var(--t-primary) !important;
+}
+
+/* ===== списки: тонкие разделители, hover голубой ===== */
+.tezis-skin .dash-news-row,
+.tezis-skin .dash-recent-row,
+.tezis-skin .dash-note-row,
+.tezis-skin .sc-note-row {
+  padding: 10px 14px !important;
+  border-bottom: 1px solid var(--t-divider) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.tezis-skin .dash-news-row:hover,
+.tezis-skin .dash-recent-row:hover,
+.tezis-skin .dash-note-row:hover,
+.tezis-skin .sc-note-row:hover {
+  background: var(--t-row-hover) !important;
+}
+
+/* заголовки/мета */
+.tezis-skin .dash-news-title,
+.tezis-skin .dash-recent-cap {
+  font-weight: 600 !important;
+  font-size: 13px !important;
+}
+
+.tezis-skin .dash-news-short,
+.tezis-skin .dash-recent-meta,
+.tezis-skin .dash-notes-date,
+.tezis-skin .dash-muted,
+.tezis-skin .sc-empty {
+  color: var(--t-muted) !important;
+  opacity: 1 !important;
+}
+
+/* ===== delete-кнопки: не “кроваво-красные”, а аккуратные, как в офисных СЭД ===== */
+.tezis-skin .dash-note-del,
+.tezis-skin .sc-note-del {
+  border-radius: var(--t-radius) !important;
+  border: 1px solid rgba(199, 7, 7, .35) !important;
+  background: transparent !important;
+  color: rgba(199, 7, 7, .95) !important;
+  font-weight: 600 !important;
+}
+
+.tezis-skin .dash-note-del:hover,
+.tezis-skin .sc-note-del:hover {
+  background: rgba(199, 7, 7, .06) !important;
+}
+
+/* ===== контекстное меню ПКМ: белое, тонкая рамка, мягкая тень ===== */
+.tezis-skin .dash-ctx {
+  border: 1px solid var(--t-border) !important;
+  border-radius: var(--t-radius) !important;
+  box-shadow: var(--t-shadow-menu) !important;
+  background: var(--t-card) !important;
+}
+
+.tezis-skin .dash-ctx-item {
+  border-radius: var(--t-radius-sm) !important;
+  font-weight: 600 !important;
+}
+.tezis-skin .dash-ctx-item:hover {
+  background: var(--t-hover) !important;
+}
+.tezis-skin .dash-ctx-sep {
+  background: var(--t-divider) !important;
+}
+
+/* ===== пикер (модалка добавления виджетов): максимально “тезисно” ===== */
+.tezis-skin .dash-picker-backdrop {
+  background: rgba(31,45,61,.35) !important;
+}
+
+.tezis-skin .dash-picker {
+  border-radius: 10px !important;
+  border: 1px solid var(--t-border) !important;
+  background: var(--t-card) !important;
+  box-shadow: var(--t-shadow-menu) !important;
+  padding: 12px !important;
+}
+
+.tezis-skin .dash-picker-head {
+  background: #F7F9FC !important;
+  border-bottom: 1px solid var(--t-divider) !important;
+  padding: 10px 12px !important;
+  margin-bottom: 10px !important;
+}
+
+.tezis-skin .dash-widget-card {
+  border: 1px solid var(--t-border) !important;
+  border-radius: 10px !important;
+  background: var(--t-card) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.tezis-skin .dash-widget-card:hover {
+  background: var(--t-hover) !important;
+  box-shadow: none !important;
+}
+
+.tezis-skin .dash-widget-action {
+  border: 1px solid rgba(42,115,200,.25) !important;
+  background: rgba(42,115,200,.10) !important;
+  color: var(--t-primary) !important;
+}
+
+/* ===== опционально: отключить картинку-фон (в ТЕЗИС обычно спокойный однотон) ===== */
+.tezis-skin .dashboard-background {
+  background: var(--t-bg) !important;
+}
+
+    .grid-stack-item-content.widget-flex .widget-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+    }
+    /* FIX GridStack vertical gap (height:100% ломает bottom/inset) */
+    .tezis-skin .grid-stack-item-content.widget-flex,
+    .tezis-skin .widget-flex {
+      height: auto !important;  /* или height: unset !important; */
+      width: auto !important;   /* на всякий */
+    }
+
+    /* TEZIS: black text, blue links, white UI */
+    .tezis-skin {
+      --t-text: #1F2D3D;        /* чёрный/тёмно-синий текст */
+      --t-muted: #6B778C;       /* серые подписи */
+      --t-primary: #2A73C8;     /* “тезисный” синий */
+      --t-primary-hover: #1F5FAF;
+    }
+
+
+
+/* Любая обычная ссылка внутри дашборда */
+.tezis-skin a,
+.tezis-skin a:visited {
+  color: var(--t-primary) !important;
+  text-decoration: none;
+}
+.tezis-skin a:hover {
+  color: var(--t-primary-hover) !important;
+  text-decoration: underline;
+}
+
+/* Заголовки строк в списках — делаем “как ссылка”, даже если это div */
+.tezis-skin .dash-news-title,
+.tezis-skin .dash-recent-cap,
+.tezis-skin .dash-note-text,
+.tezis-skin .sc-note-summary {
+  color: var(--t-primary) !important;
+}
+
+.tezis-skin .dash-news-row:hover .dash-news-title,
+.tezis-skin .dash-recent-row:hover .dash-recent-cap,
+.tezis-skin .dash-note-row:hover .dash-note-text,
+.tezis-skin .sc-note-row:hover .sc-note-summary {
+  color: var(--t-primary-hover) !important;
+  text-decoration: underline;
 }
 
 
-    .dashboard-background {
-        background: url("dashSample.jpg") no-repeat center center fixed;
-        background-size: cover;
-    }
+/* Обычный текст (описания, мета) */
+.tezis-skin .dash-news-short,
+.tezis-skin .dash-recent-meta,
+.tezis-skin .dash-muted,
+.tezis-skin .dash-notes-date,
+.tezis-skin .dash-title {
+  color: var(--t-text) !important;
+}
+
+.tezis-skin .dash-news-short,
+.tezis-skin .dash-recent-meta,
+.tezis-skin .dash-muted,
+.tezis-skin .dash-notes-date,
+.tezis-skin .sc-empty {
+  color: var(--t-muted) !important;
+}
 
 
 
-    }
+/* обычные кнопки — белые */
+.tezis-skin .dash-btn {
+  background: #fff !important;
+  border: 1px solid #D9E2EC !important;
+  color: var(--t-text) !important;
+}
+
+/* если хочешь “главную” — добавь класс dash-btn--primary в HTML */
+.tezis-skin .dash-btn--primary {
+  color: var(--t-primary) !important;
+  border-color: rgba(42,115,200,.35) !important;
+  background: rgba(42,115,200,.10) !important;
+}
+
+/* TEZIS: лаконичное контекст-меню (ПКМ) */
+.tezis-skin .dash-ctx {
+  padding: 4px !important;
+  min-width: 200px !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--t-border) !important;
+  background: #fff !important;
+  box-shadow: var(--t-shadow-menu) !important;
+}
+
+.tezis-skin .dash-ctx-item {
+  padding: 8px 10px !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;   /* вместо 800 */
+  color: var(--t-text) !important;
+  user-select: none;
+}
+
+.tezis-skin .dash-ctx-item:hover {
+  background: var(--t-hover) !important;
+}
+
+.tezis-skin .dash-ctx-sep {
+  height: 1px !important;
+  background: var(--t-divider) !important;
+  margin: 4px 6px !important;
+}
+
+
+/* TEZIS: пункты контекст-меню синие */
+.tezis-skin .dash-ctx-item {
+  color: var(--t-primary) !important;  /* голубенькие */
+  font-weight: 500 !important;
+}
+
+.tezis-skin .dash-ctx-item:hover {
+  color: var(--t-primary-hover) !important;
+  background: var(--t-hover) !important;
+  text-decoration: underline;          /* если хочешь прям как “ссылка” */
+}
+
+.tezis-skin .dash-ctx-item:active {
+  text-decoration: none;
+}
+
+/* TEZIS: синие пункты контекст-меню */
+.tezis-skin .dash-ctx-item{
+  color: var(--t-primary) !important;
+  font-weight: 500 !important;
+}
+.tezis-skin .dash-ctx-item:hover{
+  color: var(--t-primary-hover) !important;
+  background: var(--t-hover) !important;
+  text-decoration: underline;
+}
+
+
+}

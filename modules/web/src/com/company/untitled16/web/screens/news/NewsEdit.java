@@ -1,12 +1,11 @@
 package com.company.untitled16.web.screens.news;
 
 
-import com.haulmont.cuba.gui.components.DateField;
-import com.haulmont.cuba.gui.components.HBoxLayout;
-import com.haulmont.cuba.gui.components.TextArea;
-import com.haulmont.cuba.gui.components.TextField;
+import com.company.untitled16.service.RecentDocsService;
+import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.screen.*;
 import com.company.untitled16.entity.News;
+import com.haulmont.reports.gui.actions.EditorPrintFormAction;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -27,6 +26,11 @@ public class NewsEdit extends StandardEditor<News> {
     private TextField<String> titleField;
     @Inject
     private TextArea<String> fullText;
+    @Inject
+    private
+    RecentDocsService recentDocsService;
+    @Inject
+    private Button print;
 
     @Subscribe
     public void onInit(InitEvent event) {
@@ -39,6 +43,8 @@ public class NewsEdit extends StandardEditor<News> {
                 enableViewMode();
             }
         }
+
+        print.setAction(new EditorPrintFormAction(this,null));
     }
 
 
@@ -48,6 +54,14 @@ public class NewsEdit extends StandardEditor<News> {
         shortTextField.setEditable(false);
         titleField.setEditable(false);
         fullText.setEditable(false);
+    }
+
+    @Subscribe
+    public void onAfterShow(AfterShowEvent event) {
+        News n = getEditedEntity();
+        if (n != null && n.getId() != null) {
+            recentDocsService.register("untitled16_News", n.getId(), n.getTitle());
+        }
     }
 
 
