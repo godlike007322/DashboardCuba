@@ -20,7 +20,11 @@ import org.springframework.context.event.EventListener;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @UiController("untitled16_DashboardScreenNotes")
 @UiDescriptor("dashboard-screen-notes.xml")
@@ -41,6 +45,10 @@ public class DashboardScreenNotes extends Screen {
     private Events events;
     @Inject
     private Notifications notifications;
+
+    private static final String ENTITY_NEWS = "untitled16_News";
+    private static final String ENTITY_NOTES = "untitled16_Notes";
+    private static final int RECENT_LIMIT = 10;
 
     private final Gson gson = new Gson();
 
@@ -75,7 +83,7 @@ public class DashboardScreenNotes extends Screen {
                 .show();
 
         recentDocService.remove(entityName, id); // метод remove добавим в сервис
-        sendRecentToJs(10);
+        sendRecentToJs(RECENT_LIMIT);
     }
 
 
@@ -99,7 +107,7 @@ public class DashboardScreenNotes extends Screen {
             String entityName = cb.getArguments().getString(0);
             UUID id = UUID.fromString(cb.getArguments().getString(1));
 
-            if ("untitled16_News".equals(entityName)) {
+            if (ENTITY_NEWS.equals(entityName)) {
                 Optional<News> opt = dataManager.load(News.class)
                         .id(id)
                         .view(new View(News.class).addProperty("title").addProperty("fullText"))
@@ -111,8 +119,8 @@ public class DashboardScreenNotes extends Screen {
                 }
 
                 News n = opt.get();
-                recentDocService.register("untitled16_News", n.getId(), n.getTitle());
-                sendRecentToJs(10);
+                recentDocService.register(ENTITY_NEWS, n.getId(), n.getTitle());
+                sendRecentToJs(RECENT_LIMIT);
 
                 dialogs.createMessageDialog()
                         .withCaption(n.getTitle() != null ? n.getTitle() : "Новость")
@@ -121,7 +129,7 @@ public class DashboardScreenNotes extends Screen {
                 return;
             }
 
-            if ("untitled16_Notes".equals(entityName)) {
+            if (ENTITY_NOTES.equals(entityName)) {
                 Optional<Notes> opt = dataManager.load(Notes.class).id(id).optional();
 
                 if (!opt.isPresent()) {
@@ -130,8 +138,8 @@ public class DashboardScreenNotes extends Screen {
                 }
 
                 Notes note = opt.get();
-                recentDocService.register("untitled16_Notes", note.getId(), shorten(toPlainText(note.getText()), 80));
-                sendRecentToJs(10);
+                recentDocService.register(ENTITY_NOTES, note.getId(), shorten(toPlainText(note.getText()), 80));
+                sendRecentToJs(RECENT_LIMIT);
 
                 Screen editor = screenBuilders.editor(Notes.class, this)
                         .editEntity(note)
@@ -200,15 +208,15 @@ public class DashboardScreenNotes extends Screen {
                         .withMessage("Новость удалена или нет прав.")
                         .show();
 
-                recentDocService.remove("untitled16_News", id); // если она была в recent
-                sendRecentToJs(10);
+                recentDocService.remove(ENTITY_NEWS, id); // если она была в recent
+                sendRecentToJs(RECENT_LIMIT);
                 return;
             }
 
             News n = opt.get();
 
-            recentDocService.register("untitled16_News", n.getId(), n.getTitle());
-            sendRecentToJs(10);
+            recentDocService.register(ENTITY_NEWS, n.getId(), n.getTitle());
+            sendRecentToJs(RECENT_LIMIT);
 
             dialogs.createMessageDialog()
                     .withCaption(n.getTitle() != null ? n.getTitle() : "Новость")
@@ -277,16 +285,16 @@ public class DashboardScreenNotes extends Screen {
                         .withMessage("Заметка удалена или нет прав.")
                         .show();
 
-                recentDocService.remove("untitled16_Notes", id);
-                sendRecentToJs(10);
+                recentDocService.remove(ENTITY_NOTES, id);
+                sendRecentToJs(RECENT_LIMIT);
                 return;
             }
 
             Notes note = opt.get();
 
-            recentDocService.register("untitled16_Notes", note.getId(),
+            recentDocService.register(ENTITY_NOTES, note.getId(),
                     shorten(toPlainText(note.getText()), 80));
-            sendRecentToJs(10);
+            sendRecentToJs(RECENT_LIMIT);
 
             Screen editor = screenBuilders.editor(Notes.class, this)
                     .editEntity(note)
@@ -317,7 +325,7 @@ public class DashboardScreenNotes extends Screen {
             editor.addAfterCloseListener(e2 -> {
                 if (e2.closedWith(StandardOutcome.COMMIT)) {
                     gridJs.callFunction("refreshAfterNoteChange", date.toString());
-                    sendRecentToJs(10);
+                    sendRecentToJs(RECENT_LIMIT);
                 }
             });
 
@@ -336,9 +344,11 @@ public class DashboardScreenNotes extends Screen {
                             new DialogAction(DialogAction.Type.YES).withHandler(e -> {
                                 UUID id = UUID.fromString(noteId);
                                 Notes n = dataManager.load(Notes.class).id(id).optional().orElse(null);
-                                if (n != null) dataManager.remove(n);
+                                if (n != null) {
+                                    dataManager.remove(n);
+                                }
                                 gridJs.callFunction("noteDeleted", noteId, isoDate);
-                                sendRecentToJs(10);
+                                sendRecentToJs(RECENT_LIMIT);
                             }),
                             new DialogAction(DialogAction.Type.NO)
                     )
@@ -348,10 +358,9 @@ public class DashboardScreenNotes extends Screen {
 
 
     @EventListener
-    public void onDashboardChanged(DashboardInvalidateEvent e){
+    public void onDashboardChanged(DashboardInvalidateEvent e) {
         notifications.create(Notifications.NotificationType.TRAY).withCaption("GlobalEvent")
-                .withDescription(e.getMessage()).show();
-
+                 .withDescription(e.getMessage()).show();
     }
 
     @Subscribe
