@@ -263,7 +263,9 @@ window.com_company_untitled16_web_ui_components_jscomponent_GridDashboard = func
       bodyHtml =
         '<div class="dash-panel">' +
         '  <button type="button" class="dash-btn dash-add">➕ Добавить виджет</button>' +
+        '  <button type="button" class="dash-btn dash-lock">🔒 Зафиксировать сетку</button>' +
         '  <button type="button" class="dash-btn dash-reset">Сбросить раскладку</button>' +
+        '  <button type="button" class="dash-btn dash-fullscreen">🖥️ Полный экран</button>' +
         '  <button type="button" class="dash-btn dash-ge-test">📣 Тест GlobalEvent</button>' +
         '</div>';
 
@@ -649,7 +651,9 @@ window.com_company_untitled16_web_ui_components_jscomponent_GridDashboard = func
 
     if (id === 'widget-manager') {
       var btnAdd = tile.querySelector('.dash-add');
+      var btnLock = tile.querySelector('.dash-lock');
       var btnReset = tile.querySelector('.dash-reset');
+      var btnFullscreen = tile.querySelector('.dash-fullscreen');
       var btnGE = tile.querySelector('.dash-ge-test');
 
       btnGE && btnGE.addEventListener('click', function (e) {
@@ -663,11 +667,31 @@ window.com_company_untitled16_web_ui_components_jscomponent_GridDashboard = func
         openPicker();
       });
 
+      btnLock && btnLock.addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        setLocked(!isLocked);
+        btnLock.textContent = isLocked ? '🔓 Разблокировать сетку' : '🔒 Зафиксировать сетку';
+      });
+
       btnReset && btnReset.addEventListener('click', function (e) {
         e.preventDefault(); e.stopPropagation();
         resetLayoutToDefaults();
         refreshPickerAvailability();
       });
+
+      btnFullscreen && btnFullscreen.addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        var de = document.documentElement;
+        if (!document.fullscreenElement && de && de.requestFullscreen) {
+          de.requestFullscreen();
+        } else if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      });
+
+      if (btnLock) {
+        btnLock.textContent = isLocked ? '🔓 Разблокировать сетку' : '🔒 Зафиксировать сетку';
+      }
     }
 
     if (id === 'widget-clock') startClock();

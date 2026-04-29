@@ -1,13 +1,22 @@
 /* Define your theme modifications inside next mixin */
 @mixin com_company_untitled16-halo-ext {
+  .dashboard-background {
+    background: linear-gradient(135deg, #f6f9ff 0%, #eef3ff 40%, #f7fbff 100%);
+  }
 
   /* ===== общий вид плиток ===== */
   .grid-stack-item-content {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #ffffff;
-    box-shadow: 0 0 8px rgba(0,0,0,0.08);
+    border: 1px solid rgba(23, 64, 158, 0.12);
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 8px 24px rgba(16, 54, 146, 0.08);
     overflow: hidden;
+    transition: box-shadow 180ms ease, transform 180ms ease;
+  }
+
+  .grid-stack-item-content:hover {
+    box-shadow: 0 12px 30px rgba(16, 54, 146, 0.14);
+    transform: translateY(-1px);
   }
 
   .grid-stack {
@@ -57,9 +66,9 @@
     justify-content: space-between;
     gap: 8px;
 
-    padding: 6px 10px;
-    background: rgba(0,0,0,0.08);
-    border-bottom: 1px solid rgba(0,0,0,0.18);
+    padding: 8px 12px;
+    background: linear-gradient(90deg, rgba(29, 77, 188, 0.14), rgba(29, 77, 188, 0.06));
+    border-bottom: 1px solid rgba(29, 77, 188, 0.14);
     cursor: move;
   }
 
@@ -78,17 +87,23 @@
   .dash-remove:hover { opacity: 1; }
 
   .dash-panel { padding: 10px; display: grid; gap: 8px; }
+  .dash-body { scrollbar-width: thin; }
 
   .dash-btn {
     width: 100%;
     padding: 8px 10px;
     border-radius: 6px;
     border: 1px solid rgba(0,0,0,0.18);
-    background: rgba(255,255,255,0.88);
+    background: linear-gradient(180deg, #ffffff 0%, #f3f7ff 100%);
     cursor: pointer;
     font-weight: 600;
+    transition: transform 120ms ease, box-shadow 120ms ease;
   }
-  .dash-btn:hover { background: rgba(255,255,255,0.96); }
+  .dash-btn:hover {
+    background: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(16, 54, 146, 0.12);
+  }
 
   .dash-menu {
     margin-top: 6px;
@@ -127,10 +142,11 @@
     align-items: center;
     gap: 10px;
     padding: 8px 10px;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
     cursor: pointer;
+    transition: background 120ms ease;
   }
-  .dash-note-row:hover { background: rgba(0,0,0,0.03); }
+  .dash-note-row:hover { background: rgba(29, 77, 188, 0.06); }
 
   .dash-note-text {
     flex: 1;
@@ -143,12 +159,12 @@
   .dash-note-del {
     padding: 6px 10px;
     border-radius: 6px;
-    border: 1px solid rgba(200,0,0,0.85);
-    background: rgba(199,7,7,0.85);
+    border: 1px solid rgba(200,0,0,0.35);
+    background: rgba(255, 237, 237, 0.95);
     cursor: pointer;
     font-weight: 600;
   }
-  .dash-note-del:hover { background: rgba(200,0,0,0.14); }
+  .dash-note-del:hover { background: rgba(255, 225, 225, 0.95); }
   .dash-note-del:active { transform: translateY(1px); }
 
   /* ===== CLOCK ===== */
@@ -182,17 +198,17 @@
     margin: 8px 8px;
     border-radius: 10px;
 
-    background: rgba(255,255,255,0.88);
-    border: 1px solid rgba(0,0,0,0.10);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    background: rgba(255,255,255,0.95);
+    border: 1px solid rgba(29, 77, 188, 0.12);
+    box-shadow: 0 4px 14px rgba(16,54,146,0.08);
 
     cursor: pointer;
     transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
   }
 
   .news-card:hover {
-    background: rgba(255,255,255,0.96);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    background: rgba(255,255,255,1);
+    box-shadow: 0 8px 22px rgba(16,54,146,0.14);
     transform: translateY(-1px);
   }
 
