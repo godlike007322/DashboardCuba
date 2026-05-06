@@ -1,6 +1,7 @@
 package com.company.untitled16.web.screens.taskregistry;
 
 import com.haulmont.cuba.core.entity.KeyValueEntity;
+import com.haulmont.cuba.gui.Route;
 import com.haulmont.cuba.gui.components.GroupTable;
 import com.haulmont.cuba.gui.model.KeyValueCollectionContainer;
 import com.haulmont.cuba.gui.screen.Screen;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @UiController("untitled16_TaskRegistry")
+@Route(path = "main", root = true)
 @UiDescriptor("task-registry.xml")
 public class TaskRegistry extends Screen {
 
