@@ -54,8 +54,8 @@
                                 </row>
                                 <row>
                                     <textField id="assigneeField" caption="Исполнитель" inputPrompt="ФИО" width="100%"/>
-                                    <dateField id="dateFromField" caption="Дата с" width="100%"/>
-                                    <dateField id="dateToField" caption="Дата по" width="100%"/>
+                                    <textField id="dateFromField" caption="Дата с" inputPrompt="дд.мм.гггг" width="100%"/>
+                                    <textField id="dateToField" caption="Дата по" inputPrompt="дд.мм.гггг" width="100%"/>
                                     <label value=""/>
                                 </row>
                             </rows>
