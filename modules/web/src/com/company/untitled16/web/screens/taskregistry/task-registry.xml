@@ -43,7 +43,7 @@
             <workArea id="workArea" width="100%" height="100%">
                 <initialLayout spacing="false" margin="false">
                     <hbox id="registryRoot" stylename="task-workspace" width="100%" height="100%" spacing="false" expand="mainArea">
-                        <vbox id="sideMenu" stylename="task-workspace-side" width="300px" height="100%" spacing="false">
+                        <vbox id="taskContextSideMenu" stylename="task-workspace-side" width="300px" height="100%" spacing="false">
                 <hbox id="brandBox" stylename="task-brand" width="100%" spacing="true">
                     <label value="◇" stylename="task-brand-logo"/>
                     <vbox spacing="false">
