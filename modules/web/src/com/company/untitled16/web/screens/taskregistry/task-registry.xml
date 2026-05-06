@@ -8,8 +8,10 @@
             <properties>
                 <property name="selected" datatype="string"/>
                 <property name="rowNumber" datatype="string"/>
+                <property name="projectNumber" datatype="string"/>
                 <property name="taskName" datatype="string"/>
                 <property name="document" datatype="string"/>
+                <property name="taskType" datatype="string"/>
                 <property name="registrationNumber" datatype="string"/>
                 <property name="initiator" datatype="string"/>
                 <property name="assignee" datatype="string"/>
@@ -97,8 +99,8 @@
                         </vbox>
 
                         <hbox id="activeFilters" stylename="task-chips" spacing="true">
-                            <label value="Текущие   ×" stylename="task-chip"/>
-                            <label value="Согласования   ×" stylename="task-chip"/>
+                            <label id="activeGroupChip" value="Текущие   ×" stylename="task-chip"/>
+                            <label id="activeTypeChip" value="Согласования   ×" stylename="task-chip"/>
                         </hbox>
 
                         <hbox id="counters" stylename="task-counters" width="100%" spacing="true">
@@ -140,6 +142,19 @@
                             <button id="exportBtn" caption="⇩  Экспорт  ⌄" stylename="task-action-secondary"/>
                         </hbox>
 
+                        <vbox id="documentPreview" stylename="task-document-preview" width="100%" spacing="true" visible="false">
+                            <hbox width="100%" spacing="true">
+                                <label id="documentPreviewTitle" value="Документ" stylename="task-document-title"/>
+                                <label value="" width="100%"/>
+                                <button id="closeDocumentPreviewBtn" caption="×" stylename="task-document-close"/>
+                            </hbox>
+                            <hbox width="100%" spacing="true">
+                                <label id="documentPreviewTask" value="Задача" stylename="task-document-line"/>
+                                <label id="documentPreviewStatus" value="Статус" stylename="task-document-status"/>
+                                <label id="documentPreviewDeadline" value="Срок" stylename="task-document-line"/>
+                            </hbox>
+                        </vbox>
+
                         <vbox id="tableCard" stylename="task-table-card" width="100%" spacing="false">
                             <groupTable id="tasksTable" width="100%" height="520px" dataContainer="tasksDc" stylename="task-registry-table">
                                 <columns>
@@ -156,18 +171,18 @@
                                 </columns>
                             </groupTable>
                             <hbox id="pagination" stylename="task-pagination" width="100%" spacing="true">
-                                <label value="Всего: 128" stylename="task-pagination-total"/>
-                                <label value="«" stylename="task-page-button"/>
-                                <label value="‹" stylename="task-page-button"/>
-                                <label value="1" stylename="task-page-button task-page-button-active"/>
-                                <label value="2" stylename="task-page-button"/>
-                                <label value="3" stylename="task-page-button"/>
-                                <label value="4" stylename="task-page-button"/>
-                                <label value="5" stylename="task-page-button"/>
-                                <label value="›" stylename="task-page-button"/>
-                                <label value="»" stylename="task-page-button"/>
+                                <label id="paginationTotalLabel" value="Всего: 128" stylename="task-pagination-total"/>
+                                <button id="firstPageBtn" caption="«" stylename="task-page-button"/>
+                                <button id="prevPageBtn" caption="‹" stylename="task-page-button"/>
+                                <button id="page1Btn" caption="1" stylename="task-page-button task-page-button-active"/>
+                                <button id="page2Btn" caption="2" stylename="task-page-button"/>
+                                <button id="page3Btn" caption="3" stylename="task-page-button"/>
+                                <button id="page4Btn" caption="4" stylename="task-page-button"/>
+                                <button id="page5Btn" caption="5" stylename="task-page-button"/>
+                                <button id="nextPageBtn" caption="›" stylename="task-page-button"/>
+                                <button id="lastPageBtn" caption="»" stylename="task-page-button"/>
                                 <label value="Строк на странице:" stylename="task-page-size-label"/>
-                                <label value="10  ⌄" stylename="task-page-size"/>
+                                <label id="pageSizeLabel" value="10" stylename="task-page-size"/>
                             </hbox>
                         </vbox>
                     </vbox>

@@ -501,3 +501,68 @@
   padding-top: 7px !important;
   padding-bottom: 7px !important;
 }
+
+/* Interactive document preview and clickable pagination. */
+.task-document-preview {
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%) !important;
+  border: 1px solid #cfe2ff !important;
+  border-left: 5px solid #1377e8 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 24px rgba(19, 119, 232, 0.10) !important;
+  padding: 14px 18px !important;
+}
+
+.task-document-title {
+  color: #0f172a !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+}
+
+.task-document-line,
+.task-document-status {
+  color: #475569 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  padding-right: 22px;
+}
+
+.task-document-status {
+  color: #1377e8 !important;
+}
+
+.task-document-close,
+.task-document-close.v-button {
+  width: 32px !important;
+  min-width: 32px !important;
+  height: 32px !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: #eef3f9 !important;
+  color: #64748b !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+}
+
+.task-page-button.v-button {
+  min-width: 40px !important;
+  width: 40px !important;
+  height: 38px !important;
+  border: 1px solid #dfe6f0 !important;
+  border-radius: 0 !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  color: #64748b !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+}
+
+.task-page-button.v-button:hover {
+  background: #eef6ff !important;
+  color: #1377e8 !important;
+}
+
+.task-page-button-active.v-button {
+  background: #1377e8 !important;
+  border-color: #1377e8 !important;
+  color: #ffffff !important;
+}
