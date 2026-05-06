@@ -812,3 +812,35 @@
   background: #e7f2ff !important;
   color: #1377e8 !important;
 }
+
+/* Make the native CUBA top menu look like an application toolbar instead of plain text. */
+.task-cuba-topbar {
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%) !important;
+  border-bottom: 1px solid #d9e3f0 !important;
+  box-shadow: 0 8px 22px rgba(25, 53, 94, 0.08) !important;
+}
+
+.task-cuba-main-menu .v-menubar,
+.task-cuba-main-menu .cuba-menubar {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 0 12px !important;
+}
+
+.task-cuba-main-menu .v-menubar-menuitem,
+.task-cuba-main-menu .cuba-menubar-menuitem {
+  background: #ffffff !important;
+  border: 1px solid #dfe8f4 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 3px 10px rgba(25, 53, 94, 0.05) !important;
+  line-height: 34px !important;
+  margin-right: 6px !important;
+}
+
+.task-cuba-main-menu .v-menubar-menuitem:first-child,
+.task-cuba-main-menu .cuba-menubar-menuitem:first-child {
+  background: #e7f2ff !important;
+  border-color: #cfe2ff !important;
+  color: #1377e8 !important;
+}
