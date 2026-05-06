@@ -43,14 +43,22 @@
 
                     <vbox id="filtersCard" stylename="task-card task-filters-card" width="100%" spacing="true">
                         <label value="Фильтры" stylename="task-card-title"/>
-                        <grid id="filtersGrid" columns="4" spacing="true" width="100%">
-                            <textField id="projectNumberField" caption="Проектный номер" inputPrompt="Например, PRJ-2026" width="100%"/>
-                            <textField id="registrationNumberField" caption="Рег. номер" inputPrompt="TASK-0001" width="100%"/>
-                            <textField id="descriptionField" caption="Описание" inputPrompt="Ключевые слова" width="100%"/>
-                            <textField id="initiatorField" caption="Инициатор" inputPrompt="ФИО" width="100%"/>
-                            <textField id="assigneeField" caption="Исполнитель" inputPrompt="ФИО" width="100%"/>
-                            <dateField id="dateFromField" caption="Дата с" width="100%"/>
-                            <dateField id="dateToField" caption="Дата по" width="100%"/>
+                        <grid id="filtersGrid" spacing="true" width="100%">
+                            <columns count="4"/>
+                            <rows>
+                                <row>
+                                    <textField id="projectNumberField" caption="Проектный номер" inputPrompt="Например, PRJ-2026" width="100%"/>
+                                    <textField id="registrationNumberField" caption="Рег. номер" inputPrompt="TASK-0001" width="100%"/>
+                                    <textField id="descriptionField" caption="Описание" inputPrompt="Ключевые слова" width="100%"/>
+                                    <textField id="initiatorField" caption="Инициатор" inputPrompt="ФИО" width="100%"/>
+                                </row>
+                                <row>
+                                    <textField id="assigneeField" caption="Исполнитель" inputPrompt="ФИО" width="100%"/>
+                                    <dateField id="dateFromField" caption="Дата с" width="100%"/>
+                                    <dateField id="dateToField" caption="Дата по" width="100%"/>
+                                    <label value=""/>
+                                </row>
+                            </rows>
                         </grid>
                         <hbox id="filterActions" spacing="true">
                             <button id="searchBtn" caption="Найти" stylename="primary task-action-primary"/>
