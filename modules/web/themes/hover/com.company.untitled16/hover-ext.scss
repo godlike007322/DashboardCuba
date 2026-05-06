@@ -392,4 +392,237 @@
     font-weight: bold;
   }
 
+
+  /* ===== Реестр задач: прототип корпоративного экрана ===== */
+  .task-registry-screen {
+    background: #f3f6fb;
+  }
+
+  .task-registry-root {
+    background: #f3f6fb;
+  }
+
+  .task-registry-side {
+    background: #ffffff;
+    border-right: 1px solid #dfe7f3;
+    box-shadow: 4px 0 18px rgba(20, 48, 90, 0.06);
+    padding: 24px 16px;
+  }
+
+  .task-side-group-title {
+    color: #7a889c;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0 8px 10px;
+  }
+
+  .task-side-group-title-second {
+    margin-top: 28px;
+  }
+
+  .task-side-item {
+    width: 100%;
+    height: 38px;
+    margin-bottom: 6px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #334155;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .task-side-item .v-button-wrap {
+    text-align: left;
+    padding-left: 12px;
+  }
+
+  .task-side-item:hover,
+  .task-side-item:focus {
+    background: #eef5ff;
+    color: #0b65c2;
+  }
+
+  .task-side-item-active {
+    background: #0b65c2;
+    color: #ffffff;
+    box-shadow: 0 8px 18px rgba(11, 101, 194, 0.22);
+  }
+
+  .task-side-item-danger:hover {
+    background: #fff1f2;
+    color: #d92d20;
+  }
+
+  .task-registry-content {
+    padding: 28px 32px 36px;
+  }
+
+  .task-registry-title {
+    color: #102033;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .task-card,
+  .task-counter-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(15, 45, 90, 0.07);
+  }
+
+  .task-card {
+    padding: 18px;
+  }
+
+  .task-card-title {
+    color: #1f2a3d;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .task-filters-card .v-captiontext {
+    color: #5f6f86;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .task-action-primary {
+    background: #0b65c2;
+    border-color: #0b65c2;
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .task-action-primary:hover {
+    background: #0958aa;
+    border-color: #0958aa;
+  }
+
+  .task-link-button {
+    border-color: transparent;
+    color: #0b65c2;
+    background: transparent;
+    font-weight: 700;
+  }
+
+  .task-chips {
+    margin-top: 4px;
+  }
+
+  .task-chip {
+    background: #eef2f7;
+    border: 1px solid #d7e0eb;
+    border-radius: 999px;
+    color: #334155;
+    font-weight: 700;
+    padding: 6px 12px;
+  }
+
+  .task-chip-blue {
+    background: #e8f2ff;
+    border-color: #b8d8ff;
+    color: #0b65c2;
+  }
+
+  .task-counters {
+    margin: 4px 0;
+  }
+
+  .task-counter-card {
+    min-height: 96px;
+    padding: 18px;
+    border-left: 5px solid #94a3b8;
+  }
+
+  .task-counter-card-blue {
+    border-left-color: #0b65c2;
+  }
+
+  .task-counter-card-red {
+    border-left-color: #d92d20;
+  }
+
+  .task-counter-card-green {
+    border-left-color: #12a150;
+  }
+
+  .task-counter-caption {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .task-counter-value {
+    color: #102033;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
+  .task-toolbar {
+    border-bottom: 1px solid #edf2f7;
+    padding-bottom: 12px;
+  }
+
+  .task-toolbar-export {
+    color: #0b65c2;
+    font-weight: 700;
+  }
+
+  .task-registry-table .v-table-header-wrap,
+  .task-registry-table .v-table-caption-container {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+  }
+
+  .task-registry-table .v-table-row,
+  .task-registry-table .v-table-row-odd {
+    background: #ffffff;
+  }
+
+  .task-registry-table .v-table-row:hover,
+  .task-registry-table .v-table-row-odd:hover {
+    background: #f8fbff;
+  }
+
+  .task-registry-table .task-row-overdue {
+    background: #fff7f7;
+  }
+
+  .task-registry-table .task-deadline-overdue {
+    color: #d92d20;
+    font-weight: 800;
+  }
+
+  .task-registry-table .task-status-progress,
+  .task-registry-table .task-status-approval,
+  .task-registry-table .task-status-completed,
+  .task-registry-table .task-status-overdue {
+    font-weight: 800;
+  }
+
+  .task-registry-table .task-status-progress {
+    color: #0b65c2;
+  }
+
+  .task-registry-table .task-status-approval {
+    color: #7c3aed;
+  }
+
+  .task-registry-table .task-status-completed {
+    color: #12a150;
+  }
+
+  .task-registry-table .task-status-overdue {
+    color: #d92d20;
+  }
+
 }
