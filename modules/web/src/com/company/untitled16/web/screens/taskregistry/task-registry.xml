@@ -6,114 +6,163 @@
     <data readOnly="true">
         <keyValueCollection id="tasksDc">
             <properties>
-                <property name="projectNumber" datatype="string"/>
+                <property name="selected" datatype="string"/>
+                <property name="rowNumber" datatype="string"/>
+                <property name="taskName" datatype="string"/>
+                <property name="document" datatype="string"/>
                 <property name="registrationNumber" datatype="string"/>
-                <property name="description" datatype="string"/>
-                <property name="taskType" datatype="string"/>
                 <property name="initiator" datatype="string"/>
                 <property name="assignee" datatype="string"/>
                 <property name="status" datatype="string"/>
                 <property name="deadline" datatype="string"/>
+                <property name="created" datatype="string"/>
                 <property name="overdue" datatype="boolean"/>
             </properties>
         </keyValueCollection>
     </data>
-    <dialogMode width="1200" height="760"/>
+    <dialogMode width="1440" height="900"/>
     <layout stylename="task-registry-screen" expand="registryRoot">
-        <hbox id="registryRoot" stylename="task-registry-root" width="100%" height="100%" spacing="false" expand="contentScroll">
-            <vbox id="sideMenu" stylename="task-registry-side" width="250px" height="100%" spacing="false">
+        <hbox id="registryRoot" stylename="task-workspace" width="100%" height="100%" spacing="false" expand="mainArea">
+            <vbox id="sideMenu" stylename="task-workspace-side" width="330px" height="100%" spacing="false">
+                <hbox id="brandBox" stylename="task-brand" width="100%" spacing="true">
+                    <label value="◇" stylename="task-brand-logo"/>
+                    <vbox spacing="false">
+                        <label value="ИС ЭДО" stylename="task-brand-title"/>
+                        <label value="Рабочее место" stylename="task-brand-subtitle"/>
+                    </vbox>
+                    <label value="«" stylename="task-collapse"/>
+                </hbox>
+
                 <label value="ЗАДАЧИ" stylename="task-side-group-title"/>
-                <button id="currentTasksBtn" caption="Текущие" stylename="task-side-item task-side-item-active"/>
-                <button id="completedByMeBtn" caption="Завершенные мной" stylename="task-side-item"/>
-                <button id="assignedByMeBtn" caption="Назначенные мной" stylename="task-side-item"/>
-                <button id="overdueBtn" caption="Просроченные" stylename="task-side-item task-side-item-danger"/>
-                <button id="archiveBtn" caption="Архив" stylename="task-side-item"/>
+                <button id="currentTasksBtn" caption="▤  Текущие" stylename="task-side-item task-side-item-active"/>
+                <button id="completedByMeBtn" caption="✓  Завершенные мной" stylename="task-side-item"/>
+                <button id="assignedByMeBtn" caption="♙  Назначенные мной" stylename="task-side-item"/>
+                <button id="overdueBtn" caption="◷  Просроченные" stylename="task-side-item"/>
+                <button id="archiveBtn" caption="▣  Архив" stylename="task-side-item"/>
 
                 <label value="ТИП ЗАДАЧИ" stylename="task-side-group-title task-side-group-title-second"/>
-                <button id="allTypesBtn" caption="Все типы" stylename="task-side-item"/>
-                <button id="ordersBtn" caption="Поручения" stylename="task-side-item"/>
-                <button id="approvalsBtn" caption="Согласования" stylename="task-side-item task-side-item-active"/>
-                <button id="readingsBtn" caption="Ознакомления" stylename="task-side-item"/>
-                <button id="signingBtn" caption="Подписание" stylename="task-side-item"/>
+                <button id="allTypesBtn" caption="▦  Все типы" stylename="task-side-item"/>
+                <button id="ordersBtn" caption="☷  Поручения" stylename="task-side-item"/>
+                <button id="approvalsBtn" caption="♡  Согласования" stylename="task-side-item task-side-item-active"/>
+                <button id="readingsBtn" caption="◉  Ознакомления" stylename="task-side-item"/>
+                <button id="signingBtn" caption="✎  Подписание" stylename="task-side-item"/>
             </vbox>
 
-            <scrollBox id="contentScroll" stylename="task-registry-content" width="100%" height="100%">
-                <vbox id="content" width="100%" spacing="true">
-                    <label value="Реестр задач" stylename="task-registry-title"/>
+            <vbox id="mainArea" stylename="task-main-area" width="100%" height="100%" spacing="false" expand="contentScroll">
+                <hbox id="topBar" stylename="task-topbar" width="100%" height="72px" spacing="true">
+                    <label value="" width="100%"/>
+                    <label value="♢" stylename="task-topbar-icon"/>
+                    <label value="?" stylename="task-topbar-icon"/>
+                    <label value="АП" stylename="task-user-avatar"/>
+                    <label value="⌄" stylename="task-topbar-chevron"/>
+                </hbox>
 
-                    <vbox id="filtersCard" stylename="task-card task-filters-card" width="100%" spacing="true">
-                        <label value="Фильтры" stylename="task-card-title"/>
-                        <grid id="filtersGrid" spacing="true" width="100%">
-                            <columns count="4"/>
-                            <rows>
-                                <row>
-                                    <textField id="projectNumberField" caption="Проектный номер" inputPrompt="Например, PRJ-2026" width="100%"/>
-                                    <textField id="registrationNumberField" caption="Рег. номер" inputPrompt="TASK-0001" width="100%"/>
-                                    <textField id="descriptionField" caption="Описание" inputPrompt="Ключевые слова" width="100%"/>
-                                    <textField id="initiatorField" caption="Инициатор" inputPrompt="ФИО" width="100%"/>
-                                </row>
-                                <row>
-                                    <textField id="assigneeField" caption="Исполнитель" inputPrompt="ФИО" width="100%"/>
-                                    <textField id="dateFromField" caption="Дата с" inputPrompt="дд.мм.гггг" width="100%"/>
-                                    <textField id="dateToField" caption="Дата по" inputPrompt="дд.мм.гггг" width="100%"/>
-                                    <label value=""/>
-                                </row>
-                            </rows>
-                        </grid>
-                        <hbox id="filterActions" spacing="true">
-                            <button id="searchBtn" caption="Найти" stylename="primary task-action-primary"/>
-                            <button id="resetBtn" caption="Сбросить"/>
-                            <button id="moreFiltersBtn" caption="Еще фильтры" stylename="task-link-button"/>
-                        </hbox>
+                <scrollBox id="contentScroll" stylename="task-registry-content" width="100%" height="100%">
+                    <vbox id="content" width="100%" spacing="true">
+                        <label value="Реестр задач" stylename="task-registry-title"/>
+
+                        <vbox id="filtersCard" stylename="task-card task-filters-card" width="100%" spacing="true">
+                            <grid id="filtersGrid" spacing="true" width="100%">
+                                <columns count="4"/>
+                                <rows>
+                                    <row>
+                                        <textField id="projectNumberField" caption="Проектный номер" inputPrompt="Введите" width="100%"/>
+                                        <textField id="registrationNumberField" caption="Рег. номер" inputPrompt="Введите" width="100%"/>
+                                        <textField id="descriptionField" caption="Описание" inputPrompt="Введите" width="100%"/>
+                                        <textField id="initiatorField" caption="Инициатор" inputPrompt="Выберите" width="100%" stylename="task-select-like"/>
+                                    </row>
+                                    <row>
+                                        <textField id="assigneeField" caption="Исполнитель" inputPrompt="Выберите" width="100%" stylename="task-select-like"/>
+                                        <textField id="dateFromField" caption="Дата с" inputPrompt="дд.мм.гггг" width="100%" stylename="task-date-like"/>
+                                        <textField id="dateToField" caption="Дата по" inputPrompt="дд.мм.гггг" width="100%" stylename="task-date-like"/>
+                                        <label value=""/>
+                                    </row>
+                                </rows>
+                            </grid>
+                            <hbox id="filterActions" spacing="true" stylename="task-filter-actions">
+                                <button id="searchBtn" caption="Найти" stylename="primary task-action-primary"/>
+                                <button id="resetBtn" caption="Сбросить" stylename="task-action-secondary"/>
+                                <button id="moreFiltersBtn" caption="Еще фильтры  ⌄" stylename="task-action-secondary"/>
+                            </hbox>
+                        </vbox>
+
                         <hbox id="activeFilters" stylename="task-chips" spacing="true">
-                            <label value="Текущие" stylename="task-chip"/>
-                            <label value="Согласования" stylename="task-chip task-chip-blue"/>
+                            <label value="Текущие   ×" stylename="task-chip"/>
+                            <label value="Согласования   ×" stylename="task-chip"/>
                         </hbox>
-                    </vbox>
 
-                    <hbox id="counters" stylename="task-counters" width="100%" spacing="true">
-                        <vbox stylename="task-counter-card" width="25%" spacing="false">
-                            <label value="Всего" stylename="task-counter-caption"/>
-                            <label id="totalCounter" value="8" stylename="task-counter-value"/>
-                        </vbox>
-                        <vbox stylename="task-counter-card task-counter-card-blue" width="25%" spacing="false">
-                            <label value="В работе" stylename="task-counter-caption"/>
-                            <label id="inProgressCounter" value="4" stylename="task-counter-value"/>
-                        </vbox>
-                        <vbox stylename="task-counter-card task-counter-card-red" width="25%" spacing="false">
-                            <label value="Просрочено" stylename="task-counter-caption"/>
-                            <label id="overdueCounter" value="2" stylename="task-counter-value"/>
-                        </vbox>
-                        <vbox stylename="task-counter-card task-counter-card-green" width="25%" spacing="false">
-                            <label value="Завершено" stylename="task-counter-caption"/>
-                            <label id="completedCounter" value="2" stylename="task-counter-value"/>
-                        </vbox>
-                    </hbox>
+                        <hbox id="counters" stylename="task-counters" width="100%" spacing="true">
+                            <hbox stylename="task-counter-card" width="25%" spacing="true">
+                                <label value="☷" stylename="task-counter-icon task-counter-icon-blue"/>
+                                <vbox spacing="false">
+                                    <label value="Всего" stylename="task-counter-caption"/>
+                                    <label id="totalCounter" value="128" stylename="task-counter-value"/>
+                                </vbox>
+                            </hbox>
+                            <hbox stylename="task-counter-card" width="25%" spacing="true">
+                                <label value="▤" stylename="task-counter-icon task-counter-icon-blue"/>
+                                <vbox spacing="false">
+                                    <label value="В работе" stylename="task-counter-caption"/>
+                                    <label id="inProgressCounter" value="64" stylename="task-counter-value"/>
+                                </vbox>
+                            </hbox>
+                            <hbox stylename="task-counter-card" width="25%" spacing="true">
+                                <label value="◷" stylename="task-counter-icon task-counter-icon-red"/>
+                                <vbox spacing="false">
+                                    <label value="Просрочено" stylename="task-counter-caption"/>
+                                    <label id="overdueCounter" value="9" stylename="task-counter-value task-counter-value-red"/>
+                                </vbox>
+                            </hbox>
+                            <hbox stylename="task-counter-card" width="25%" spacing="true">
+                                <label value="✓" stylename="task-counter-icon task-counter-icon-green"/>
+                                <vbox spacing="false">
+                                    <label value="Завершено" stylename="task-counter-caption"/>
+                                    <label id="completedCounter" value="55" stylename="task-counter-value"/>
+                                </vbox>
+                            </hbox>
+                        </hbox>
 
-                    <vbox id="tableCard" stylename="task-card task-table-card" width="100%" spacing="true">
                         <hbox id="toolbar" stylename="task-toolbar" width="100%" spacing="true">
-                            <button id="createTaskBtn" caption="Создать задачу" stylename="primary task-action-primary"/>
-                            <button id="openTaskBtn" caption="Открыть"/>
-                            <button id="assignTaskBtn" caption="Назначить"/>
-                            <button id="changeStatusBtn" caption="Изменить статус"/>
-                            <button id="exportBtn" caption="Экспорт" stylename="task-toolbar-export"/>
+                            <button id="createTaskBtn" caption="⊞  Создать задачу" stylename="primary task-action-primary task-create-button"/>
+                            <button id="openTaskBtn" caption="▱  Открыть" stylename="task-action-secondary"/>
+                            <button id="assignTaskBtn" caption="♙  Назначить" stylename="task-action-secondary"/>
+                            <button id="changeStatusBtn" caption="⟳  Изменить статус" stylename="task-action-secondary"/>
+                            <button id="exportBtn" caption="⇩  Экспорт  ⌄" stylename="task-action-secondary"/>
                         </hbox>
-                        <groupTable id="tasksTable" width="100%" height="420px" dataContainer="tasksDc" stylename="task-registry-table">
-                            <columns>
-                                <column id="projectNumber" caption="Проектный номер"/>
-                                <column id="registrationNumber" caption="Рег. номер"/>
-                                <column id="description" caption="Описание"/>
-                                <column id="taskType" caption="Тип задачи"/>
-                                <column id="initiator" caption="Инициатор"/>
-                                <column id="assignee" caption="Исполнитель"/>
-                                <column id="status" caption="Статус"/>
-                                <column id="deadline" caption="Срок"/>
-                            </columns>
-                            <rowsCount/>
-                        </groupTable>
+
+                        <vbox id="tableCard" stylename="task-table-card" width="100%" spacing="false">
+                            <groupTable id="tasksTable" width="100%" height="420px" dataContainer="tasksDc" stylename="task-registry-table">
+                                <columns>
+                                    <column id="selected" caption="" width="42"/>
+                                    <column id="rowNumber" caption="№" width="58"/>
+                                    <column id="taskName" caption="Задача"/>
+                                    <column id="document" caption="Документ"/>
+                                    <column id="registrationNumber" caption="Рег. номер"/>
+                                    <column id="initiator" caption="Инициатор"/>
+                                    <column id="assignee" caption="Исполнитель"/>
+                                    <column id="status" caption="Статус"/>
+                                    <column id="deadline" caption="Срок"/>
+                                    <column id="created" caption="Создана ↓"/>
+                                </columns>
+                            </groupTable>
+                            <hbox id="pagination" stylename="task-pagination" width="100%" spacing="true">
+                                <label value="Всего: 128" stylename="task-pagination-total"/>
+                                <label value="«" stylename="task-page-button"/>
+                                <label value="‹" stylename="task-page-button"/>
+                                <label value="1" stylename="task-page-button task-page-button-active"/>
+                                <label value="2" stylename="task-page-button"/>
+                                <label value="3" stylename="task-page-button"/>
+                                <label value="4" stylename="task-page-button"/>
+                                <label value="5" stylename="task-page-button"/>
+                                <label value="›" stylename="task-page-button"/>
+                                <label value="»" stylename="task-page-button"/>
+                                <label value="Строк на странице:" stylename="task-page-size-label"/>
+                                <label value="10  ⌄" stylename="task-page-size"/>
+                            </hbox>
+                        </vbox>
                     </vbox>
-                </vbox>
-            </scrollBox>
+                </scrollBox>
+            </vbox>
         </hbox>
     </layout>
 </window>
