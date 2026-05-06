@@ -566,3 +566,41 @@
   border-color: #1377e8 !important;
   color: #ffffff !important;
 }
+
+/* Visual polish for actual interaction states. */
+.task-side-item-active .v-button-caption {
+  color: #1377e8 !important;
+}
+
+.task-side-item:not(.task-side-item-active) .v-button-caption {
+  color: #42526e !important;
+}
+
+.task-page-button.v-disabled,
+.task-page-button.v-button.v-disabled {
+  opacity: 0.35 !important;
+  cursor: default !important;
+}
+
+.task-registry-table .v-selected,
+.task-registry-table .v-table-row-selected,
+.task-registry-table .v-table-row-odd-selected {
+  background: #7059c6 !important;
+  color: #ffffff !important;
+}
+
+.task-registry-table .v-selected .v-table-cell-content,
+.task-registry-table .v-table-row-selected .v-table-cell-content,
+.task-registry-table .v-table-row-odd-selected .v-table-cell-content {
+  background: #7059c6 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.task-registry-table .v-selected .v-table-cell-content-task-status-progress,
+.task-registry-table .v-selected .v-table-cell-content-task-status-approval,
+.task-registry-table .v-selected .v-table-cell-content-task-status-completed,
+.task-registry-table .v-selected .v-table-cell-content-task-status-overdue {
+  background: rgba(255,255,255,0.18) !important;
+  color: #ffffff !important;
+}

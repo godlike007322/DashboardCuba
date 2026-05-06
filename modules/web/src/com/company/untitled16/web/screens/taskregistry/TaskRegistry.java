@@ -28,6 +28,10 @@ public class TaskRegistry extends Screen {
 
     private static final int PAGE_SIZE = 10;
     private static final String CURRENT_USER = "Петров П. П.";
+    private static final String SIDE_ITEM_STYLE = "task-side-item";
+    private static final String SIDE_ITEM_ACTIVE_STYLE = "task-side-item task-side-item-active";
+    private static final String PAGE_BUTTON_STYLE = "task-page-button";
+    private static final String PAGE_BUTTON_ACTIVE_STYLE = "task-page-button task-page-button-active";
 
     @Inject
     private KeyValueCollectionContainer tasksDc;
@@ -77,6 +81,27 @@ public class TaskRegistry extends Screen {
     private Label<String> documentPreviewStatus;
     @Inject
     private Label<String> documentPreviewDeadline;
+
+    @Inject
+    private Button currentTasksBtn;
+    @Inject
+    private Button completedByMeBtn;
+    @Inject
+    private Button assignedByMeBtn;
+    @Inject
+    private Button overdueBtn;
+    @Inject
+    private Button archiveBtn;
+    @Inject
+    private Button allTypesBtn;
+    @Inject
+    private Button ordersBtn;
+    @Inject
+    private Button approvalsBtn;
+    @Inject
+    private Button readingsBtn;
+    @Inject
+    private Button signingBtn;
 
     @Inject
     private Button page1Btn;
@@ -295,7 +320,8 @@ public class TaskRegistry extends Screen {
                 .filter(task -> contains(task, "deadline", dateToField.getValue()))
                 .collect(Collectors.toList());
         activeGroupChip.setValue(taskGroupFilter + "   ×");
-        activeTypeChip.setValue(("Согласование".equals(taskTypeFilter) ? "Согласования" : taskTypeFilter) + "   ×");
+        activeTypeChip.setValue(typeChipCaption() + "   ×");
+        updateSideMenuStyles();
         goToPage(currentPage);
         updateCounters();
     }
@@ -342,7 +368,41 @@ public class TaskRegistry extends Screen {
             int page = firstVisiblePage + i;
             buttons[i].setCaption(page <= pages ? String.valueOf(page) : "");
             buttons[i].setEnabled(page <= pages);
+            buttons[i].setStyleName(page == currentPage ? PAGE_BUTTON_ACTIVE_STYLE : PAGE_BUTTON_STYLE);
         }
+    }
+
+    private String typeChipCaption() {
+        if ("Все типы".equals(taskTypeFilter)) {
+            return "Все типы";
+        }
+        if ("Согласование".equals(taskTypeFilter)) {
+            return "Согласования";
+        }
+        if ("Поручение".equals(taskTypeFilter)) {
+            return "Поручения";
+        }
+        if ("Ознакомление".equals(taskTypeFilter)) {
+            return "Ознакомления";
+        }
+        if ("Подписание".equals(taskTypeFilter)) {
+            return "Подписание";
+        }
+        return taskTypeFilter;
+    }
+
+    private void updateSideMenuStyles() {
+        currentTasksBtn.setStyleName("Текущие".equals(taskGroupFilter) ? SIDE_ITEM_ACTIVE_STYLE : SIDE_ITEM_STYLE);
+        completedByMeBtn.setStyleName("Завершенные мной".equals(taskGroupFilter) ? SIDE_ITEM_ACTIVE_STYLE : SIDE_ITEM_STYLE);
+        assignedByMeBtn.setStyleName("Назначенные мной".equals(taskGroupFilter) ? SIDE_ITEM_ACTIVE_STYLE : SIDE_ITEM_STYLE);
+        overdueBtn.setStyleName("Просроченные".equals(taskGroupFilter) ? SIDE_ITEM_ACTIVE_STYLE : SIDE_ITEM_STYLE);
+        archiveBtn.setStyleName("Архив".equals(taskGroupFilter) ? SIDE_ITEM_ACTIVE_STYLE : SIDE_ITEM_STYLE);
+
+        allTypesBtn.setStyleName("Все типы".equals(taskTypeFilter) ? SIDE_ITEM_ACTIVE_STYLE : SIDE_ITEM_STYLE);
+        ordersBtn.setStyleName("Поручение".equals(taskTypeFilter) ? SIDE_ITEM_ACTIVE_STYLE : SIDE_ITEM_STYLE);
+        approvalsBtn.setStyleName("Согласование".equals(taskTypeFilter) ? SIDE_ITEM_ACTIVE_STYLE : SIDE_ITEM_STYLE);
+        readingsBtn.setStyleName("Ознакомление".equals(taskTypeFilter) ? SIDE_ITEM_ACTIVE_STYLE : SIDE_ITEM_STYLE);
+        signingBtn.setStyleName("Подписание".equals(taskTypeFilter) ? SIDE_ITEM_ACTIVE_STYLE : SIDE_ITEM_STYLE);
     }
 
     private void updateCounters() {
