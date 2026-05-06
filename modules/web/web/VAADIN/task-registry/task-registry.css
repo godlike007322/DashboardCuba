@@ -913,3 +913,51 @@
   padding: 4px 14px !important;
   box-sizing: border-box !important;
 }
+
+/* Larger counter cards: prevent caption clipping and make summary blocks look premium. */
+.task-counters {
+  gap: 18px !important;
+}
+
+.task-counter-card {
+  min-height: 108px !important;
+  padding: 20px 22px !important;
+  border-radius: 16px !important;
+  box-sizing: border-box !important;
+}
+
+.task-counter-card .v-slot-task-counter-icon,
+.task-counter-card .v-slot:first-child {
+  flex: 0 0 auto !important;
+}
+
+.task-counter-icon {
+  width: 62px !important;
+  height: 62px !important;
+  min-width: 62px !important;
+  line-height: 62px !important;
+  font-size: 31px !important;
+  border-radius: 14px !important;
+}
+
+.task-counter-card .v-verticallayout {
+  min-width: 145px !important;
+}
+
+.task-counter-caption {
+  display: block !important;
+  min-width: 130px !important;
+  color: #64748b !important;
+  font-size: 16px !important;
+  line-height: 22px !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+}
+
+.task-counter-value {
+  display: block !important;
+  min-width: 80px !important;
+  font-size: 32px !important;
+  line-height: 38px !important;
+  overflow: visible !important;
+}
