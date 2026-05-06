@@ -9,10 +9,10 @@ import com.haulmont.cuba.gui.components.GroupTable;
 import com.haulmont.cuba.gui.components.Label;
 import com.haulmont.cuba.gui.components.TextField;
 import com.haulmont.cuba.gui.model.KeyValueCollectionContainer;
-import com.haulmont.cuba.gui.screen.Screen;
 import com.haulmont.cuba.gui.screen.Subscribe;
 import com.haulmont.cuba.gui.screen.UiController;
 import com.haulmont.cuba.gui.screen.UiDescriptor;
+import com.haulmont.cuba.web.app.main.MainScreen;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @UiController("untitled16_TaskRegistry")
 @Route(path = "main", root = true)
 @UiDescriptor("task-registry.xml")
-public class TaskRegistry extends Screen {
+public class TaskRegistry extends MainScreen {
 
     private static final int DEFAULT_PAGE_SIZE = 10;
     private static final String CURRENT_USER = "Петров П. П.";

@@ -777,3 +777,38 @@
 .task-page-button.v-button {
   border-radius: 8px !important;
 }
+
+/* CUBA AppMenu integration in the main screen top bar. */
+.task-main-screen-root {
+  background: #f4f7fb !important;
+}
+
+.task-cuba-topbar {
+  gap: 12px !important;
+}
+
+.task-cuba-main-menu,
+.task-cuba-main-menu .v-menubar,
+.task-cuba-main-menu .cuba-menubar {
+  width: 100% !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.task-cuba-main-menu .v-menubar-menuitem,
+.task-cuba-main-menu .cuba-menubar-menuitem {
+  border-radius: 8px !important;
+  color: #334155 !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  padding: 9px 14px !important;
+}
+
+.task-cuba-main-menu .v-menubar-menuitem:hover,
+.task-cuba-main-menu .cuba-menubar-menuitem:hover,
+.task-cuba-main-menu .v-menubar-menuitem-selected,
+.task-cuba-main-menu .cuba-menubar-menuitem-selected {
+  background: #e7f2ff !important;
+  color: #1377e8 !important;
+}
