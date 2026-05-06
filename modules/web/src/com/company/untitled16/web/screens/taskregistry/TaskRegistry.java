@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @UiDescriptor("task-registry.xml")
 public class TaskRegistry extends Screen {
 
-    private static final int PAGE_SIZE = 10;
+    private static final int DEFAULT_PAGE_SIZE = 10;
     private static final String CURRENT_USER = "Петров П. П.";
     private static final String SIDE_ITEM_STYLE = "task-side-item";
     private static final String SIDE_ITEM_ACTIVE_STYLE = "task-side-item task-side-item-active";
@@ -66,7 +66,7 @@ public class TaskRegistry extends Screen {
     @Inject
     private Label<String> paginationTotalLabel;
     @Inject
-    private Label<String> pageSizeLabel;
+    private Button pageSizeBtn;
     @Inject
     private Label<String> activeGroupChip;
     @Inject
@@ -104,6 +104,15 @@ public class TaskRegistry extends Screen {
     private Button signingBtn;
 
     @Inject
+    private Button firstPageBtn;
+    @Inject
+    private Button prevPageBtn;
+    @Inject
+    private Button nextPageBtn;
+    @Inject
+    private Button lastPageBtn;
+
+    @Inject
     private Button page1Btn;
     @Inject
     private Button page2Btn;
@@ -117,6 +126,7 @@ public class TaskRegistry extends Screen {
     private List<KeyValueEntity> allTasks = Collections.emptyList();
     private List<KeyValueEntity> filteredTasks = Collections.emptyList();
     private int currentPage = 1;
+    private int pageSize = DEFAULT_PAGE_SIZE;
     private String taskGroupFilter = "Текущие";
     private String taskTypeFilter = "Согласование";
 
@@ -271,6 +281,19 @@ public class TaskRegistry extends Screen {
         goToPage(pageCount());
     }
 
+    @Subscribe("pageSizeBtn")
+    public void onPageSizeBtnClick(Button.ClickEvent event) {
+        if (pageSize == 10) {
+            pageSize = 20;
+        } else if (pageSize == 20) {
+            pageSize = 50;
+        } else {
+            pageSize = 10;
+        }
+        currentPage = 1;
+        goToPage(currentPage);
+    }
+
     @Subscribe("page1Btn")
     public void onPage1BtnClick(Button.ClickEvent event) {
         goToPage(pageNumber(page1Btn));
@@ -349,19 +372,24 @@ public class TaskRegistry extends Screen {
     private void goToPage(int page) {
         int pages = pageCount();
         currentPage = Math.max(1, Math.min(page, pages));
-        int from = Math.min((currentPage - 1) * PAGE_SIZE, filteredTasks.size());
-        int to = Math.min(from + PAGE_SIZE, filteredTasks.size());
+        int from = Math.min((currentPage - 1) * pageSize, filteredTasks.size());
+        int to = Math.min(from + pageSize, filteredTasks.size());
         tasksDc.setItems(new ArrayList<>(filteredTasks.subList(from, to)));
         updatePagination(pages);
     }
 
     private int pageCount() {
-        return Math.max(1, (int) Math.ceil(filteredTasks.size() / (double) PAGE_SIZE));
+        return Math.max(1, (int) Math.ceil(filteredTasks.size() / (double) pageSize));
     }
 
     private void updatePagination(int pages) {
         paginationTotalLabel.setValue("Всего: " + filteredTasks.size());
-        pageSizeLabel.setValue(String.valueOf(PAGE_SIZE));
+        pageSizeBtn.setCaption(pageSize + " ▾");
+        firstPageBtn.setEnabled(currentPage > 1);
+        prevPageBtn.setEnabled(currentPage > 1);
+        nextPageBtn.setEnabled(currentPage < pages);
+        lastPageBtn.setEnabled(currentPage < pages);
+
         Button[] buttons = {page1Btn, page2Btn, page3Btn, page4Btn, page5Btn};
         int firstVisiblePage = Math.max(1, Math.min(currentPage - 2, Math.max(1, pages - 4)));
         for (int i = 0; i < buttons.length; i++) {
