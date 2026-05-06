@@ -22,6 +22,14 @@
     </data>
     <dialogMode width="1440" height="900"/>
     <layout stylename="task-registry-screen" expand="registryRoot">
+        <jsComponent id="taskRegistryAssets"
+                     visible="false"
+                     initFunctionName="com_company_untitled16_web_ui_components_jscomponent_TaskRegistryAssets">
+            <dependencies>
+                <dependency path="vaadin://task-registry/task-registry.css"/>
+                <dependency path="vaadin://task-registry/task-registry-assets.js"/>
+            </dependencies>
+        </jsComponent>
         <hbox id="registryRoot" stylename="task-workspace" width="100%" height="100%" spacing="false" expand="mainArea">
             <vbox id="sideMenu" stylename="task-workspace-side" width="330px" height="100%" spacing="false">
                 <hbox id="brandBox" stylename="task-brand" width="100%" spacing="true">
