@@ -45,27 +45,35 @@
                     <label value="«" stylename="task-collapse"/>
                 </hbox>
 
-                <label value="ЗАДАЧИ" stylename="task-side-group-title"/>
-                <button id="currentTasksBtn" caption="Текущие" stylename="task-side-item task-side-item-active"/>
-                <button id="completedByMeBtn" caption="Завершенные мной" stylename="task-side-item"/>
-                <button id="assignedByMeBtn" caption="Назначенные мной" stylename="task-side-item"/>
-                <button id="overdueBtn" caption="Просроченные" stylename="task-side-item"/>
-                <button id="archiveBtn" caption="Архив" stylename="task-side-item"/>
+                <vbox id="taskMenuGroup" stylename="task-side-section" width="100%" spacing="false">
+                    <label value="ЗАДАЧИ" stylename="task-side-group-title"/>
+                    <button id="currentTasksBtn" caption="Текущие" stylename="task-side-item task-side-item-active"/>
+                    <button id="completedByMeBtn" caption="Завершенные мной" stylename="task-side-item"/>
+                    <button id="assignedByMeBtn" caption="Назначенные мной" stylename="task-side-item"/>
+                    <button id="overdueBtn" caption="Просроченные" stylename="task-side-item"/>
+                    <button id="archiveBtn" caption="Архив" stylename="task-side-item"/>
+                </vbox>
 
-                <label value="ТИП ЗАДАЧИ" stylename="task-side-group-title task-side-group-title-second"/>
-                <button id="allTypesBtn" caption="Все типы" stylename="task-side-item"/>
-                <button id="ordersBtn" caption="Поручения" stylename="task-side-item"/>
-                <button id="approvalsBtn" caption="Согласования" stylename="task-side-item task-side-item-active"/>
-                <button id="readingsBtn" caption="Ознакомления" stylename="task-side-item"/>
-                <button id="signingBtn" caption="Подписание" stylename="task-side-item"/>
+                <vbox id="typeMenuGroup" stylename="task-side-section task-side-section-second" width="100%" spacing="false">
+                    <label value="ТИП ЗАДАЧИ" stylename="task-side-group-title"/>
+                    <button id="allTypesBtn" caption="Все типы" stylename="task-side-item"/>
+                    <button id="ordersBtn" caption="Поручения" stylename="task-side-item"/>
+                    <button id="approvalsBtn" caption="Согласования" stylename="task-side-item task-side-item-active"/>
+                    <button id="readingsBtn" caption="Ознакомления" stylename="task-side-item"/>
+                    <button id="signingBtn" caption="Подписание" stylename="task-side-item"/>
+                </vbox>
             </vbox>
 
             <vbox id="mainArea" stylename="task-main-area" width="100%" height="100%" spacing="false" expand="contentScroll">
-                <hbox id="topBar" stylename="task-topbar" width="100%" height="56px" spacing="true">
-                    <label value="Реестр задач" stylename="task-topbar-title"/>
+                <hbox id="topBar" stylename="task-topbar" width="100%" height="64px" spacing="true">
+                    <button id="dashboardMenuBtn" caption="Dashboard" stylename="task-main-menu-item"/>
+                    <button id="reportsMenuBtn" caption="Отчёты" stylename="task-main-menu-item"/>
+                    <button id="applicationMenuBtn" caption="Application" stylename="task-main-menu-item task-main-menu-item-active"/>
+                    <button id="administrationMenuBtn" caption="Администрирование" stylename="task-main-menu-item"/>
+                    <button id="helpMenuBtn" caption="Помощь" stylename="task-main-menu-item"/>
                     <label value="" width="100%"/>
+                    <label value="Реестр задач" stylename="task-topbar-title"/>
                     <label value="Администратор" stylename="task-topbar-user"/>
-                    <label value="Рабочее место" stylename="task-topbar-badge"/>
                 </hbox>
 
                 <scrollBox id="contentScroll" stylename="task-registry-content" width="100%" height="100%">
@@ -169,20 +177,23 @@
                                     <column id="created" caption="Создана ↓"/>
                                 </columns>
                             </groupTable>
-                            <hbox id="pagination" stylename="task-pagination" width="100%" spacing="true" expand="paginationSpacer">
+                            <hbox id="pagination" stylename="task-pagination" width="100%" spacing="false" expand="pageControlsWrapper">
                                 <label id="paginationTotalLabel" value="Всего: 128" stylename="task-pagination-total" width="160px"/>
-                                <button id="firstPageBtn" caption="«" stylename="task-page-button"/>
-                                <button id="prevPageBtn" caption="‹" stylename="task-page-button"/>
-                                <button id="page1Btn" caption="1" stylename="task-page-button task-page-button-active"/>
-                                <button id="page2Btn" caption="2" stylename="task-page-button"/>
-                                <button id="page3Btn" caption="3" stylename="task-page-button"/>
-                                <button id="page4Btn" caption="4" stylename="task-page-button"/>
-                                <button id="page5Btn" caption="5" stylename="task-page-button"/>
-                                <button id="nextPageBtn" caption="›" stylename="task-page-button"/>
-                                <button id="lastPageBtn" caption="»" stylename="task-page-button"/>
-                                <label id="paginationSpacer" value="" width="100%"/>
-                                <label value="Строк на странице:" stylename="task-page-size-label"/>
-                                <button id="pageSizeBtn" caption="10 ▾" stylename="task-page-size"/>
+                                <hbox id="pageControlsWrapper" stylename="task-page-controls-wrapper" width="100%" spacing="false">
+                                    <button id="firstPageBtn" caption="«" stylename="task-page-button"/>
+                                    <button id="prevPageBtn" caption="‹" stylename="task-page-button"/>
+                                    <button id="page1Btn" caption="1" stylename="task-page-button task-page-button-active"/>
+                                    <button id="page2Btn" caption="2" stylename="task-page-button"/>
+                                    <button id="page3Btn" caption="3" stylename="task-page-button"/>
+                                    <button id="page4Btn" caption="4" stylename="task-page-button"/>
+                                    <button id="page5Btn" caption="5" stylename="task-page-button"/>
+                                    <button id="nextPageBtn" caption="›" stylename="task-page-button"/>
+                                    <button id="lastPageBtn" caption="»" stylename="task-page-button"/>
+                                </hbox>
+                                <hbox id="pageSizeControls" stylename="task-page-size-controls" spacing="true">
+                                    <label value="Строк на странице:" stylename="task-page-size-label"/>
+                                    <button id="pageSizeBtn" caption="10 ▾" stylename="task-page-size"/>
+                                </hbox>
                             </hbox>
                         </vbox>
                     </vbox>

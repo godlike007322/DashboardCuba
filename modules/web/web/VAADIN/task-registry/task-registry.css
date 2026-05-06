@@ -692,3 +692,88 @@
   background: #eef6ff !important;
   color: #1377e8 !important;
 }
+
+/* Menu grouping and CUBA-like top navigation. */
+.task-side-section {
+  background: rgba(255,255,255,0.86) !important;
+  border: 1px solid #e0e7f1 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 26px rgba(25, 53, 94, 0.06) !important;
+  padding: 14px 12px 10px 12px !important;
+}
+
+.task-side-section-second {
+  margin-top: 18px !important;
+}
+
+.task-side-section .task-side-group-title {
+  background: #f3f7fc;
+  border-radius: 10px;
+  color: #475569 !important;
+  margin: 0 0 10px 0 !important;
+  padding: 8px 12px !important;
+}
+
+.task-main-menu-item.v-button {
+  height: 40px !important;
+  min-width: 88px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #334155 !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+}
+
+.task-main-menu-item.v-button:hover {
+  background: #eef6ff !important;
+  color: #1377e8 !important;
+}
+
+.task-main-menu-item-active.v-button {
+  background: #e7f2ff !important;
+  color: #1377e8 !important;
+}
+
+.task-topbar-title {
+  background: #f8fafc;
+  border: 1px solid #e0e7f1;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.task-topbar-user {
+  background: #ffffff;
+  border: 1px solid #e0e7f1;
+  border-radius: 999px;
+  padding: 8px 13px;
+}
+
+/* Robust, centered pagination layout. */
+.task-pagination {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-height: 66px !important;
+  padding: 12px 18px !important;
+}
+
+.task-page-controls-wrapper {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.task-page-size-controls {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  min-width: 250px !important;
+}
+
+.task-page-button.v-button {
+  border-radius: 8px !important;
+}
