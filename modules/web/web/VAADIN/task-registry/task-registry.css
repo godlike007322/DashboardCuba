@@ -421,3 +421,83 @@
   line-height: 40px;
   text-align: center;
 }
+
+/* Compact full-screen tuning: reduce empty spaces and make the registry feel filled. */
+.task-assets-loader {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+
+.task-workspace-side {
+  padding: 18px 18px !important;
+}
+
+.task-brand {
+  margin-bottom: 26px !important;
+}
+
+.task-side-group-title-second {
+  margin-top: 26px !important;
+}
+
+.task-side-item,
+.task-side-item.v-button {
+  height: 44px !important;
+  margin-bottom: 7px !important;
+  font-size: 15px !important;
+}
+
+.task-topbar {
+  min-height: 56px !important;
+  height: 56px !important;
+}
+
+.task-registry-content {
+  padding: 18px 28px 20px 28px !important;
+}
+
+.task-registry-title {
+  margin-top: 0 !important;
+  margin-bottom: 12px !important;
+}
+
+.task-card,
+.task-filters-card {
+  padding: 16px 18px !important;
+}
+
+.task-filters-card .v-textfield {
+  height: 40px !important;
+}
+
+.task-action-primary,
+.task-action-primary.v-button,
+.task-create-button,
+.task-create-button.v-button,
+.task-action-secondary,
+.task-action-secondary.v-button {
+  height: 40px !important;
+}
+
+.task-counter-card {
+  min-height: 84px !important;
+  padding: 14px 18px !important;
+}
+
+.task-counter-icon {
+  width: 50px !important;
+  height: 50px !important;
+  line-height: 50px !important;
+  font-size: 27px !important;
+}
+
+.task-table-card {
+  margin-bottom: 0 !important;
+}
+
+.task-registry-table .v-table-cell-content {
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+}

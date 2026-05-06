@@ -23,15 +23,17 @@
     <dialogMode width="1440" height="900"/>
     <layout stylename="task-registry-screen" expand="registryRoot">
         <jsComponent id="taskRegistryAssets"
-                     visible="false"
+                     width="1px"
+                     height="1px"
+                     stylename="task-assets-loader"
                      initFunctionName="com_company_untitled16_web_ui_components_jscomponent_TaskRegistryAssets">
             <dependencies>
-                <dependency path="vaadin://task-registry/task-registry.css"/>
+                <dependency path="vaadin://task-registry/task-registry.css" type="STYLESHEET"/>
                 <dependency path="vaadin://task-registry/task-registry-assets.js"/>
             </dependencies>
         </jsComponent>
         <hbox id="registryRoot" stylename="task-workspace" width="100%" height="100%" spacing="false" expand="mainArea">
-            <vbox id="sideMenu" stylename="task-workspace-side" width="330px" height="100%" spacing="false">
+            <vbox id="sideMenu" stylename="task-workspace-side" width="300px" height="100%" spacing="false">
                 <hbox id="brandBox" stylename="task-brand" width="100%" spacing="true">
                     <label value="◇" stylename="task-brand-logo"/>
                     <vbox spacing="false">
@@ -57,7 +59,7 @@
             </vbox>
 
             <vbox id="mainArea" stylename="task-main-area" width="100%" height="100%" spacing="false" expand="contentScroll">
-                <hbox id="topBar" stylename="task-topbar" width="100%" height="72px" spacing="true">
+                <hbox id="topBar" stylename="task-topbar" width="100%" height="56px" spacing="true">
                     <label value="" width="100%"/>
                     <label value="♢" stylename="task-topbar-icon"/>
                     <label value="?" stylename="task-topbar-icon"/>
@@ -139,7 +141,7 @@
                         </hbox>
 
                         <vbox id="tableCard" stylename="task-table-card" width="100%" spacing="false">
-                            <groupTable id="tasksTable" width="100%" height="420px" dataContainer="tasksDc" stylename="task-registry-table">
+                            <groupTable id="tasksTable" width="100%" height="520px" dataContainer="tasksDc" stylename="task-registry-table">
                                 <columns>
                                     <column id="selected" caption="" width="42"/>
                                     <column id="rowNumber" caption="№" width="58"/>
