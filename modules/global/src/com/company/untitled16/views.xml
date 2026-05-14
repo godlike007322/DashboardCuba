@@ -1,4 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <views xmlns="http://schemas.haulmont.com/cuba/view.xsd">
 
+    <view class="com.company.untitled16.entity.SedDocumentType" extends="_local" name="sedDocumentType-view"/>
+
+    <view class="com.company.untitled16.entity.SedBusinessRoute" extends="_local" name="sedBusinessRoute-view">
+        <property name="documentType" view="sedDocumentType-view"/>
+    </view>
+
+    <view class="com.company.untitled16.entity.SedRouteStage" extends="_local" name="sedRouteStage-view">
+        <property name="route" view="sedBusinessRoute-view"/>
+    </view>
+
+    <view class="com.company.untitled16.entity.SedDocument" extends="_local" name="sedDocument-view">
+        <property name="documentType" view="sedDocumentType-view"/>
+        <property name="route" view="sedBusinessRoute-view"/>
+    </view>
+
+    <view class="com.company.untitled16.entity.SedDocumentRouteTask" extends="_local" name="sedDocumentRouteTask-view">
+        <property name="document" view="sedDocument-view"/>
+        <property name="stage" view="sedRouteStage-view"/>
+    </view>
+
+    <view class="com.company.untitled16.entity.SedDocumentAttachment" extends="_local" name="sedDocumentAttachment-view">
+        <property name="document" view="sedDocument-view"/>
+    </view>
+
 </views>
