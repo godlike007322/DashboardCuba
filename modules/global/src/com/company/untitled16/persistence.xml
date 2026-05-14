@@ -4,5 +4,11 @@
 
         <class>com.company.untitled16.entity.Notes</class>
         <class>com.company.untitled16.entity.News</class>
+        <class>com.company.untitled16.entity.SedDocumentAttachment</class>
+        <class>com.company.untitled16.entity.SedDocumentRouteTask</class>
+        <class>com.company.untitled16.entity.SedDocument</class>
+        <class>com.company.untitled16.entity.SedRouteStage</class>
+        <class>com.company.untitled16.entity.SedBusinessRoute</class>
+        <class>com.company.untitled16.entity.SedDocumentType</class>
     </persistence-unit>
 </persistence>
